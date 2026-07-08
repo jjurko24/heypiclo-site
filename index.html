@@ -173,7 +173,7 @@
   .lockup {
     display: flex; align-items: center; justify-content: center;
     gap: clamp(12px, 1.6vw, 16px);
-    margin-bottom: var(--hs-2);
+    margin-bottom: 8px;
   }
   .lockup .mark { width: clamp(46px, 5.2vw, 54px); height: clamp(46px, 5.2vw, 54px); flex: none; display: block; }
   .lockup .brand {
@@ -184,6 +184,17 @@
     text-shadow: 0 2px 24px rgba(5, 8, 13, 0.55);
     white-space: nowrap;
   }
+
+  /* The dictionary line: you're about to say this name to your Mac, so here's how. */
+  .pron {
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--night-ink-2);
+    margin: 0 auto calc(var(--hs-2) - 6px);
+    text-shadow: 0 1px 16px rgba(5, 8, 13, 0.55);
+    white-space: nowrap;
+  }
+  .pron .serif { font-style: italic; color: var(--night-ink); }
 
   .hero h1 {
     font-size: clamp(25px, 3.4vw, 36px);
@@ -409,7 +420,7 @@
     color: #EDEAE5;
     transition: transform 140ms ease-out, border-color 140ms ease-out;
   }
-  .chip:hover { transform: translateY(-1px); border-color: rgba(94, 170, 199, 0.55); }
+  button.chip:hover { transform: translateY(-1px); border-color: rgba(94, 170, 199, 0.55); }
   .chip::before { content: "\201C"; color: var(--accent-raw); }
   .chip::after { content: "\201D"; color: var(--accent-raw); }
   .chip.hot { border-color: rgba(94, 170, 199, 0.55); background: rgba(94, 170, 199, 0.10); }
@@ -543,16 +554,18 @@
   .modehead { display: flex; align-items: baseline; gap: 9px; font-weight: 650; font-size: 15px; }
   .modehead .auto { font-size: 12.5px; color: var(--ink-3); font-weight: 500; }
   .demo.prose { font-size: 14.5px; line-height: 1.55; min-height: 0; }
-  .mchips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  /* The mode roster: informational labels, not tabs. Quieter than every clickable chip
+     on the page (smaller, transparent, no hover, no selected state) so nothing begs a click. */
+  .mchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; }
   .mchip {
-    font-size: 14.5px;
-    background: var(--card);
+    font-size: 13.5px;
+    background: transparent;
     border: 1px solid var(--line);
     border-radius: 999px;
-    padding: 7px 16px;
-    color: var(--ink-2);
+    padding: 5px 13px;
+    color: var(--ink-3);
   }
-  .mchip.on { border-color: var(--accent-glow); background: var(--accent-soft); color: var(--ink); }
+  .mnote { margin-top: 12px; font-size: 13.5px; color: var(--ink-3); }
 
   @media (prefers-reduced-motion: reduce) {
     .tw, .breathe { animation: none; }
@@ -571,7 +584,6 @@
     .dline .dcaret { animation: none; }
     .c-old { opacity: 0; }
     .c-new, .cmd-demo .chip.spoken, .cmd-demo .ctag { opacity: 1; transform: none; }
-    .engine-panel { transition: none; }
     .engine, .engine:hover { transition: none; }
   }
 
@@ -607,14 +619,10 @@
   }
   .engine b { font-size: 15.5px; font-weight: 650; color: var(--ink); }
   .engine span { font-size: 13px; line-height: 1.45; color: var(--ink-3); }
-  .engine.local { border-color: var(--accent-glow); background: var(--accent-soft); }
   .engine:hover { border-color: var(--accent-glow); }
   .engine:focus-visible { outline: 2px solid var(--accent-raw); outline-offset: 2px; }
-  .engine[aria-expanded="true"] { border-color: var(--accent-glow); box-shadow: 0 0 0 3px var(--accent-soft); }
-  /* One shared panel under the cards; opens by growing its grid row, no measuring needed. */
-  .engine-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease-out; }
-  .engine-panel > .clip { overflow: hidden; min-height: 0; }
-  .engine-panel.open { grid-template-rows: 1fr; }
+  .engine[aria-expanded="true"] { border-color: var(--accent-glow); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+  /* One shared panel under the cards; always open, its content follows the selected engine. */
   .epanel {
     margin-top: 12px;
     background: var(--card);
@@ -723,6 +731,8 @@
   }
   footer a { color: var(--ink-3); text-decoration: underline; text-underline-offset: 3px; }
   footer a:hover { color: var(--accent); }
+  /* The line wraps as two sensible halves on narrow screens: links first, credit second. */
+  footer .fgroup { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -762,6 +772,7 @@
       </svg>
       <span class="brand serif">Hey Piclo</span>
       </div>
+      <p class="pron"><span class="serif" title="/&#712;pi.klo/">pee&#8209;kloh</span> &middot; say it like Spanish</p>
 
       <h1 class="serif">Your Mac, finally listening the way you think.</h1>
       <p class="promise">Talk instead of type, anywhere on your Mac. Hey Piclo transcribes on-device, cleans up with your own AI keys or a local model, and <em>never writes your audio to disk.</em></p>
@@ -944,14 +955,16 @@
           </div>
         </div>
       </div>
-      <div class="mchips reveal d1">
-        <span class="mchip">General</span>
-        <span class="mchip on">Email</span>
-        <span class="mchip">Message</span>
-        <span class="mchip">Document</span>
-        <span class="mchip">Code</span>
-        <span class="mchip">Social</span>
-        <span class="mchip">Your own, with your own prompt</span>
+      <div class="reveal d1">
+        <div class="mchips" role="list" aria-label="The built-in writing modes">
+          <span class="mchip" role="listitem">General</span>
+          <span class="mchip" role="listitem">Email</span>
+          <span class="mchip" role="listitem">Message</span>
+          <span class="mchip" role="listitem">Document</span>
+          <span class="mchip" role="listitem">Code</span>
+          <span class="mchip" role="listitem">Social</span>
+        </div>
+        <p class="mnote">The built-in modes. Add your own, with your own prompt.</p>
       </div>
 
       <div class="split" style="margin-top: 64px;">
@@ -1009,17 +1022,15 @@
           <p class="lede" style="font-size: 16.5px;">No account, no middleman, no markup. Paste your own API key, stored in the macOS Keychain and sent only to the provider you chose. Cleanup runs on your key, your account, your rates. Or point Piclo at a local model and skip the cloud entirely.</p>
         </div>
         <div class="engines reveal d1" role="group" aria-label="Pick an engine to see how to set it up">
-          <button type="button" class="engine" data-eng="claude" aria-expanded="false" aria-controls="engine-panel"><b>Claude</b><span>your Anthropic key</span></button>
+          <button type="button" class="engine" data-eng="claude" aria-expanded="true" aria-controls="engine-panel"><b>Claude</b><span>your Anthropic key</span></button>
           <button type="button" class="engine" data-eng="chatgpt" aria-expanded="false" aria-controls="engine-panel"><b>ChatGPT</b><span>your OpenAI key</span></button>
           <button type="button" class="engine" data-eng="gemini" aria-expanded="false" aria-controls="engine-panel"><b>Gemini</b><span>your Google key</span></button>
-          <button type="button" class="engine local" data-eng="local" aria-expanded="false" aria-controls="engine-panel"><b>Local</b><span>Ollama, LM Studio, any OpenAI-compatible server</span></button>
+          <button type="button" class="engine" data-eng="local" aria-expanded="false" aria-controls="engine-panel"><b>Local</b><span>Ollama, LM Studio, any OpenAI-compatible server</span></button>
         </div>
         <div class="engine-panel" id="engine-panel">
-          <div class="clip">
-            <div class="epanel">
-              <p class="edesc"></p>
-              <p class="ekey"><a target="_blank" rel="noopener"></a><span class="enote"></span></p>
-            </div>
+          <div class="epanel">
+            <p class="edesc">Claude is Anthropic&rsquo;s AI, careful with tone and very good at rewrites that still sound like you.</p>
+            <p class="ekey"><a target="_blank" rel="noopener" href="https://console.anthropic.com/settings/keys">Get your Anthropic key</a><span class="enote">Paste it into Piclo once. It lives in your macOS Keychain and is sent only to Anthropic.</span></p>
           </div>
         </div>
       </div>
@@ -1045,7 +1056,7 @@
   </section>
 
   <footer>
-    Hey Piclo beta &middot; <a href="https://updates.heypiclo.com/changelog.html">changelog</a> &middot; <a href="mailto:john@heypiclo.com">feedback</a> &middot; made for the Mac
+    <span class="fgroup">Hey Piclo beta &middot; <a href="https://updates.heypiclo.com/changelog.html">changelog</a> &middot; <a href="mailto:john@heypiclo.com">feedback</a> &middot;</span> <span class="fgroup">made for the Mac by <a href="https://johnjurko.com" target="_blank" rel="noopener">John Jurko II</a></span>
   </footer>
   </div>
 
@@ -1128,7 +1139,8 @@
     });
   })();
 
-  /* Bring your own AI: each engine card opens the shared panel with its one-liner and link. */
+  /* Bring your own AI: one engine is always selected (Claude by default); clicking a card
+     moves the highlight and swaps the always-open panel's one-liner and link. */
   (function () {
     var panel = document.getElementById('engine-panel');
     if (!panel) return;
@@ -1156,16 +1168,14 @@
     var cards = document.querySelectorAll('.engine[data-eng]');
     cards.forEach(function (card) {
       card.addEventListener('click', function () {
-        var wasOpen = card.getAttribute('aria-expanded') === 'true';
+        if (card.getAttribute('aria-expanded') === 'true') return;
         cards.forEach(function (c) { c.setAttribute('aria-expanded', 'false'); });
-        if (wasOpen) { panel.classList.remove('open'); return; }
         var e = ENGINES[card.getAttribute('data-eng')];
         desc.textContent = e.d;
         link.href = e.href;
         link.textContent = e.l;
         note.textContent = e.n;
         card.setAttribute('aria-expanded', 'true');
-        panel.classList.add('open');
       });
     });
   })();
