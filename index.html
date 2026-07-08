@@ -129,28 +129,25 @@
     display: flex; align-items: center; justify-content: space-between;
     padding: 22px 0 0;
   }
-  .wordmark { display: flex; align-items: center; gap: 10px; color: var(--night-ink); font-size: 20px; }
-  .wordmark svg { width: 26px; height: 26px; }
   .topbar a.quiet { color: var(--night-ink-2); font-size: 14px; }
   .topbar a.quiet:hover { color: var(--night-ink); }
 
   .hero-inner { position: relative; z-index: 2; text-align: center; padding-top: clamp(56px, 8vw, 104px); }
 
-  .mark { width: 92px; height: 92px; display: inline-block; margin-bottom: 26px; }
   .breathe { animation: breathe 4.2s ease-in-out infinite; }
   @keyframes breathe { 0%, 100% { opacity: 0.9; } 50% { opacity: 1; } }
 
   .beta-badge {
     display: inline-flex; align-items: center; gap: 8px;
-    font-size: 13.5px; font-weight: 500; letter-spacing: 0.01em;
+    font-size: 13px; font-weight: 500; letter-spacing: 0.01em;
     color: var(--night-ink);
     background: rgba(14, 22, 33, 0.55);
     border: 1px solid rgba(94, 170, 199, 0.35);
     border-radius: 999px;
-    padding: 7px 16px;
-    margin-bottom: 26px;
+    padding: 6px 14px;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    white-space: nowrap;
   }
   .beta-badge .dot {
     width: 7px; height: 7px; border-radius: 50%;
@@ -159,11 +156,29 @@
   }
   .beta-badge b { font-weight: 650; }
 
+  /* The brand lockup: the Piclo Circle and the name, side by side, the loudest thing on the page. */
+  .lockup {
+    display: flex; align-items: center; justify-content: center;
+    gap: clamp(14px, 2.4vw, 24px);
+    margin-bottom: clamp(28px, 4.5vw, 44px);
+  }
+  .lockup .mark { width: clamp(54px, 8vw, 86px); height: clamp(54px, 8vw, 86px); flex: none; display: block; }
+  .lockup .brand {
+    font-size: clamp(42px, 8vw, 78px);
+    line-height: 1;
+    color: var(--night-ink);
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 24px rgba(5, 8, 13, 0.55);
+    white-space: nowrap;
+  }
+
   .hero h1 {
-    font-size: clamp(38px, 6.6vw, 62px);
-    line-height: 1.08;
-    max-width: 17ch;
-    margin: 0 auto 18px;
+    font-size: clamp(23px, 3.5vw, 34px);
+    font-weight: 500;
+    line-height: 1.22;
+    max-width: 24ch;
+    margin: 0 auto 14px;
+    color: rgba(237, 234, 229, 0.9);
     text-shadow: 0 2px 24px rgba(5, 8, 13, 0.55);
   }
   .hero .promise {
@@ -295,8 +310,9 @@
     border-radius: 18px;
     padding: 28px 26px;
   }
-  .card .gesture { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 12px; }
-  .card .name { font-weight: 650; font-size: 18px; }
+  .gesture { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+  .gesture .name { font-weight: 650; font-size: 18px; }
+  .card .gesture { margin-bottom: 12px; }
   .card p { font-size: 15.5px; color: var(--ink-2); }
 
   /* ---------- Command Mode: the dark band ---------- */
@@ -456,8 +472,8 @@
     padding: 24px;
     box-shadow: 0 0 0 4px var(--accent-soft);
   }
-  .vault .gesture { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 8px; }
-  .vault .name { font-weight: 650; font-size: 17px; }
+  .vault .gesture { margin-bottom: 8px; }
+  .vault .name { font-size: 17px; }
   .vault p { font-size: 15px; color: var(--ink-2); }
 
   /* ---------- Beta ---------- */
@@ -501,14 +517,12 @@
 
   <div class="wrap">
     <div class="topbar">
-      <span class="wordmark serif">
-        <svg viewBox="0 0 96 96" aria-hidden="true"><path d="M93.99 38.23 L94.28 40.21 L94.49 42.21 L94.61 44.21 L94.65 46.21 L94.60 48.20 L94.47 50.19 L94.25 52.17 L93.95 54.13 L93.56 56.08 L93.10 58.00 L92.56 59.90 L91.93 61.77 L91.23 63.61 L90.46 65.41 L89.61 67.18 L88.69 68.91 L87.70 70.60 L86.65 72.24 L85.53 73.84 L84.34 75.38 L83.09 76.88 L81.78 78.31 L80.42 79.69 L79.00 81.01 L77.53 82.27 L76.01 83.47 L74.45 84.60 L72.84 85.67 L71.18 86.66 L69.49 87.59 L67.77 88.44 L66.01 89.22 L64.22 89.92 L62.40 90.55 L60.56 91.11 L58.70 91.58 L56.83 91.98 L54.94 92.30 L53.03 92.53 L51.13 92.69 L49.21 92.77 L47.30 92.77 L45.38 92.68 L43.48 92.52 L41.58 92.27 L39.70 91.95 L37.83 91.54 L35.98 91.06 L34.15 90.50 L32.35 89.86 L30.57 89.15 L28.83 88.36 L27.13 87.50 L25.46 86.58 L23.83 85.58 L22.24 84.52 L20.70 83.39 L19.20 82.20 L17.76 80.94 L16.38 79.62 L15.05 78.25 L13.77 76.82 L12.56 75.34 L11.42 73.81 L10.34 72.23 L9.32 70.60 L8.38 68.94 L7.50 67.23 L6.70 65.49 L5.97 63.72 L5.31 61.91 L4.73 60.08 L4.23 58.23 L3.81 56.35 L3.46 54.46 L3.19 52.55 L3.00 50.63 L2.89 48.71 L2.87 46.78 L2.92 44.85 L3.05 42.92 L3.26 40.99 L3.55 39.08 L3.93 37.17 L4.38 35.29 L4.91 33.41 L5.52 31.56 L6.20 29.74 L6.96 27.94 L7.80 26.17 L8.71 24.44 L9.69 22.74 L10.75 21.09 L11.88 19.47 L13.07 17.90 L14.33 16.38 L15.66 14.92 L17.05 13.51 L18.50 12.15 L20.01 10.86 L21.58 9.63 L23.20 8.46 L24.87 7.36 L26.59 6.34 L28.36 5.39 L30.16 4.51 L32.01 3.71 L33.90 2.99 L35.81 2.36 L37.76 1.81 L39.73 1.34 L41.72 0.96 L43.73 0.67 L45.76 0.47 L47.79 0.35 L49.83 0.33 L51.87 0.40 L53.91 0.56 L55.94 0.82 L57.96 1.16 L59.15 1.56 L60.23 2.22 L61.14 3.10 L61.83 4.16 L62.26 5.35 L62.42 6.60 L62.30 7.86 L61.90 9.05 L61.25 10.13 L60.37 11.04 L59.31 11.73 L58.12 12.16 L56.87 12.33 L55.61 12.20 L55.61 12.20 L54.08 11.87 L52.53 11.60 L50.98 11.40 L49.41 11.25 L47.84 11.17 L46.26 11.15 L44.68 11.19 L43.10 11.30 L41.53 11.48 L39.96 11.72 L38.39 12.02 L36.84 12.39 L35.30 12.83 L33.78 13.33 L32.28 13.89 L30.80 14.52 L29.34 15.22 L27.91 15.97 L26.51 16.79 L25.15 17.67 L23.82 18.62 L22.53 19.62 L21.29 20.67 L20.08 21.79 L18.93 22.95 L17.83 24.17 L16.77 25.44 L15.78 26.75 L14.84 28.11 L13.96 29.52 L13.14 30.96 L12.39 32.44 L11.70 33.95 L11.07 35.50 L10.52 37.07 L10.03 38.67 L9.62 40.30 L9.28 41.94 L9.01 43.59 L8.81 45.26 L8.69 46.94 L8.64 48.62 L8.66 50.30 L8.76 51.99 L8.94 53.66 L9.18 55.33 L9.50 56.99 L9.90 58.64 L10.36 60.26 L10.90 61.87 L11.51 63.45 L12.19 65.01 L12.93 66.53 L13.74 68.02 L14.61 69.48 L15.55 70.89 L16.55 72.26 L17.61 73.59 L18.72 74.88 L19.89 76.11 L21.11 77.29 L22.38 78.42 L23.70 79.50 L25.07 80.51 L26.47 81.47 L27.92 82.36 L29.41 83.19 L30.93 83.95 L32.48 84.64 L34.07 85.27 L35.67 85.82 L37.30 86.31 L38.95 86.72 L40.62 87.06 L42.30 87.33 L43.98 87.53 L45.68 87.65 L47.38 87.70 L49.07 87.68 L50.77 87.58 L52.46 87.41 L54.13 87.17 L55.80 86.85 L57.45 86.46 L59.08 86.00 L60.68 85.47 L62.26 84.87 L63.81 84.20 L65.33 83.46 L66.82 82.66 L68.26 81.79 L69.67 80.86 L71.03 79.87 L72.35 78.83 L73.61 77.73 L74.83 76.57 L75.99 75.36 L77.09 74.11 L78.14 72.80 L79.13 71.46 L80.06 70.07 L80.92 68.65 L81.71 67.19 L82.44 65.70 L83.11 64.18 L83.70 62.64 L84.23 61.08 L84.68 59.50 L85.07 57.90 L85.38 56.29 L85.62 54.67 L85.79 53.04 L85.89 51.41 L85.92 49.79 L85.88 48.17 L85.77 46.55 L85.59 44.94 L85.34 43.35 L85.03 41.77 L84.65 40.21 L84.54 39.15 L84.68 38.09 L85.05 37.08 L85.63 36.19 L86.40 35.44 L87.31 34.89 L88.32 34.55 L89.39 34.44 L90.45 34.58 L91.45 34.95 L92.35 35.53 L93.09 36.30 L93.65 37.21 L93.99 38.23 Z" fill="#5EAAC7"/><circle cx="77.87" cy="18.13" r="8.64" fill="#78D9FE"/></svg>
-        Hey Piclo
-      </span>
+      <span class="beta-badge"><span class="dot"></span><b>Free first-look beta</b></span>
       <a class="quiet" href="https://updates.heypiclo.com/changelog.html">Changelog</a>
     </div>
 
     <div class="hero-inner">
+      <div class="lockup">
       <svg class="mark breathe" viewBox="0 0 96 96" aria-hidden="true">
         <defs>
           <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
@@ -521,10 +535,9 @@
           <circle cx="77.87" cy="18.13" r="8.64" fill="#78D9FE"/>
         </g>
       </svg>
-
-      <div>
-        <span class="beta-badge"><span class="dot"></span><b>Free first-look beta</b></span>
+      <span class="brand serif">Hey Piclo</span>
       </div>
+
       <h1 class="serif">Your Mac, finally listening the way you think.</h1>
       <p class="promise">Talk instead of type, anywhere on your Mac. Piclo transcribes on-device, cleans up with your own AI keys or a local model, and <em>never writes your audio to disk.</em></p>
       <a class="cta" href="https://updates.heypiclo.com/download">Download for macOS</a>
@@ -564,7 +577,7 @@
       </div>
       <div class="cards">
         <div class="card reveal">
-          <div class="gesture"><kbd>&#8963;</kbd><kbd>&#8963;</kbd><span class="name">Dictate</span></div>
+          <div class="gesture"><kbd>Double-tap &#8963;</kbd><span class="name">Dictate</span></div>
           <p>Double-tap Control and speak. Your words are transcribed on your Mac and typed right where your cursor is. Tap twice again to finish.</p>
         </div>
         <div class="card reveal d1">
@@ -580,7 +593,7 @@
     <div class="wrap">
       <div class="col center reveal">
         <h2 class="serif">Command your text</h2>
-        <p class="lede" style="margin: 0 auto;">Select some text, hold <kbd>left &#8984;</kbd>, and say what you want done with it. Plain words in, real edits out: Piclo edits, transforms, formats, or researches in place.</p>
+        <p class="lede" style="margin: 0 auto;">Select some text, <kbd>Hold left &#8984;</kbd>, and say what you want done with it. Plain words in, real edits out: Piclo edits, transforms, formats, or researches in place.</p>
       </div>
       <div class="chips center reveal d1" style="margin-left: auto; margin-right: auto;">
         <span class="chip hot">Tighten this up</span>
@@ -614,8 +627,8 @@
         </div>
 
         <div class="vignette reveal d1">
-          <h3>Your recent takes, one gesture away</h3>
-          <p class="expl">Double-tap Option for your recent dictations: copy a take, re-insert it, or open it in the editor to fix and teach.</p>
+          <div class="gesture"><kbd>Double-tap &#8997;</kbd><span class="name">Your recent takes, one gesture away</span></div>
+          <p class="expl">One gesture opens your recent dictations: copy a take, re-insert it, or open it in the editor to fix and teach.</p>
           <div class="window">
             <picture>
               <source srcset="img/recent-dark.png" media="(prefers-color-scheme: dark)">
