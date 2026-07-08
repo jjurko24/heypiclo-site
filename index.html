@@ -609,6 +609,65 @@
   .window img { width: 100%; height: auto; display: block; }
   .caption { margin-top: 40px; font-size: 14px; color: var(--ink-3); max-width: 58ch; }
 
+  /* The screenshots are buttons: click (or Enter) opens them full size in the lightbox.
+     The affordance stays quiet — a zoom cursor and the same Tide ring the engine cards wear. */
+  button.window {
+    display: block; width: 100%; padding: 0;
+    font: inherit; color: inherit; text-align: inherit;
+    appearance: none; -webkit-appearance: none;
+    cursor: zoom-in;
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out,
+                border-color 140ms ease-out, box-shadow 140ms ease-out;
+  }
+  button.window:hover { border-color: var(--accent-glow); box-shadow: var(--shadow-win), 0 0 0 3px var(--accent-soft); }
+  button.window:focus-visible { outline: 2px solid var(--accent-raw); outline-offset: 3px; }
+
+  /* ---------- Screenshot lightbox: one shared overlay, the page dimmed to night behind it ---------- */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 60;
+    display: flex; align-items: center; justify-content: center;
+    padding: clamp(16px, 4vw, 48px);
+    background: rgba(7, 11, 17, 0.78);
+    backdrop-filter: blur(14px) saturate(1.05);
+    -webkit-backdrop-filter: blur(14px) saturate(1.05);
+    cursor: zoom-out;
+    opacity: 0;
+    transition: opacity 0.26s ease-out;
+  }
+  .lightbox[hidden] { display: none; }
+  .lightbox.open { opacity: 1; }
+  .lightbox img {
+    max-width: 100%; max-height: 100%;
+    width: auto; height: auto; object-fit: contain;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+    cursor: default;
+    transform: scale(0.965);
+    transition: transform 0.26s ease-out;
+  }
+  .lightbox.open img { transform: none; }
+  .lb-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: rgba(26, 30, 36, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #EDEAE5;
+    padding: 0;
+    cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    transition: border-color 140ms ease-out, color 140ms ease-out;
+  }
+  .lb-close svg { width: 15px; height: 15px; display: block; }
+  .lb-close:hover { border-color: rgba(94, 170, 199, 0.65); color: var(--accent-hi); }
+  .lb-close:focus-visible { outline: 2px solid var(--accent-raw); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox { transition: none; }
+    .lightbox img { transform: none; transition: none; }
+  }
+
   .split { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(28px, 5vw, 56px); align-items: center; margin-top: 8px; }
   @media (max-width: 820px) { .split { grid-template-columns: 1fr; } }
 
@@ -865,10 +924,10 @@
         <h2 class="serif">Command your text</h2>
         <p class="lede" style="margin: 0 auto;">Select some text, <kbd>Double-tap &#8984;</kbd>, and say what you want done with it. Plain words in, real edits out: Piclo edits, transforms, formats, or researches in place.</p>
       </div>
-      <div class="cmd-demo reveal d1" id="cmd-demo" role="img" aria-label="Example: the selected sentence, Get it to me by Friday, no excuses, is spoken over with make this friendlier and becomes, Could you send it over by Friday? That would really help.">
+      <div class="cmd-demo reveal d1" id="cmd-demo" role="img" aria-label="Example: the selected sentence, This draft isn't good enough. Redo it, is spoken over with make this friendlier and becomes, This is a solid start. Mind giving it another pass? A few touches would make it shine.">
         <div class="cdoc" aria-hidden="true">
-          <span class="c-old"><mark>Get it to me by Friday, no excuses.</mark></span>
-          <span class="c-new">Could you send it over by Friday? That would really help.</span>
+          <span class="c-old"><mark>This draft isn&rsquo;t good enough. Redo it.</mark></span>
+          <span class="c-new">This is a solid start &mdash; mind giving it another pass? A few touches would make it shine.</span>
         </div>
         <div class="cfoot" aria-hidden="true">
           <span class="chip hot spoken">Make this friendlier</span>
@@ -911,12 +970,12 @@
         <div class="vignette reveal d1">
           <div class="gesture"><span class="name">Your recent takes, one gesture away</span><kbd>Double-tap &#8997;</kbd></div>
           <p class="expl">One gesture opens your recent dictations: copy a take, re-insert it, or open it in the editor to fix and teach.</p>
-          <div class="window">
+          <button type="button" class="window" aria-haspopup="dialog">
             <picture>
               <source srcset="img/recent-dark.png" media="(prefers-color-scheme: dark)">
               <img src="img/recent-light.png" width="1000" height="574" loading="lazy" alt="The Recent dictations panel: your last takes, ready to copy, re-insert, or fix and learn from">
             </picture>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -925,12 +984,12 @@
           <h2 class="serif" style="font-size: clamp(23px, 3vw, 28px);">Your vocabulary rides along</h2>
           <p class="lede" style="font-size: 16.5px;">Names, jargon, and brands stay with the transcript as hints to cleanup. Teach Piclo once; the same word lands right next time. And when a correction looks like a name, Piclo notices and offers to remember it on its own.</p>
         </div>
-        <div class="window reveal d1">
+        <button type="button" class="window reveal d1" aria-haspopup="dialog">
           <picture>
             <source srcset="img/dictionary-dark.png" media="(prefers-color-scheme: dark)">
             <img src="img/dictionary-light.png" width="1200" height="979" loading="lazy" alt="Hey Piclo's Dictionary settings: a list of taught terms, each mapping what Whisper hears to what should be typed">
           </picture>
-        </div>
+        </button>
       </div>
     </div>
   </section>
@@ -983,14 +1042,14 @@
         <div class="reveal">
           <h2 class="serif" style="font-size: clamp(23px, 3vw, 28px);">A finely tuned instrument</h2>
           <p class="lede" style="font-size: 16.5px;">Piclo has four themes and one living accent color. Tune the signal once; the whole app follows. This page wears Tide, the default.</p>
-          <p class="caption" style="margin-top: 18px;">Real screenshots from the current beta. The panels follow your Mac's light or dark appearance, and so does this page.</p>
+          <p class="caption" style="margin-top: 18px;">Real screenshots from the current beta. The panels follow your Mac's light or dark appearance, and so does this page. Click any shot to see it full size.</p>
         </div>
-        <div class="window reveal d1">
+        <button type="button" class="window reveal d1" aria-haspopup="dialog">
           <picture>
             <source srcset="img/appearance-dark.png" media="(prefers-color-scheme: dark)">
             <img src="img/appearance-light.png" width="1200" height="979" loading="lazy" alt="Hey Piclo's Appearance settings: theme tiles, the Accent Signal spectrum slider set to Tide, and a live listening preview of the Piclo Circle">
           </picture>
-        </div>
+        </button>
       </div>
     </div>
   </section>
@@ -1014,12 +1073,12 @@
           </ul>
         </div>
         <div>
-          <div class="window reveal d1">
+          <button type="button" class="window reveal d1" aria-haspopup="dialog">
             <picture>
               <source srcset="img/privacy-dark.png" media="(prefers-color-scheme: dark)">
               <img src="img/privacy-light.png" width="1200" height="979" loading="lazy" alt="Hey Piclo's Privacy settings: guarantees that audio is never written to disk and transcription runs fully on-device, built in rather than optional">
             </picture>
-          </div>
+          </button>
           <div class="vault reveal d2">
             <div class="gesture"><span class="name">Vault Mode</span><kbd>&#8963;&#8997;V</kbd></div>
             <p>One switch that guarantees nothing leaves your Mac. Transcription and cleanup both run locally, and the app refuses every cloud call while it's on. Flip it before you say something sensitive.</p>
@@ -1072,6 +1131,14 @@
   </footer>
   </div>
 
+<!-- The screenshot lightbox: one shared overlay, filled from whichever shot was clicked. -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged screenshot" hidden>
+  <button type="button" class="lb-close" aria-label="Close the enlarged screenshot">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </button>
+  <img alt="">
+</div>
+
 <script>
   (function () {
     var els = document.querySelectorAll('.reveal');
@@ -1088,6 +1155,34 @@
     els.forEach(function (el) { io.observe(el); });
   })();
 
+  /* The rotating boxes hold one steady size: render every example into a hidden probe at the
+     live width, take the tallest, and reserve that height. Re-measured on resize. */
+  function holdTallest(target, variants, fill) {
+    var probe = target.cloneNode(false);
+    probe.style.position = 'absolute';
+    probe.style.visibility = 'hidden';
+    probe.style.height = 'auto';
+    probe.style.minHeight = '0';
+    probe.setAttribute('aria-hidden', 'true');
+    function measure() {
+      probe.style.width = target.clientWidth + 'px';
+      target.parentNode.insertBefore(probe, target);
+      var max = 0;
+      variants.forEach(function (v) {
+        fill(probe, v);
+        if (probe.offsetHeight > max) max = probe.offsetHeight;
+      });
+      probe.parentNode.removeChild(probe);
+      target.style.minHeight = max + 'px';
+    }
+    measure();
+    var rt;
+    window.addEventListener('resize', function () {
+      clearTimeout(rt);
+      rt = setTimeout(measure, 150);
+    });
+  }
+
   /* Command your text: each chip plays its own before-and-after in the vignette. */
   (function () {
     var demo = document.getElementById('cmd-demo');
@@ -1098,8 +1193,8 @@
     var tagEl = demo.querySelector('.ctag');
     var CMDS = {
       friendlier: {
-        before: 'Get it to me by Friday, no excuses.',
-        after: 'Could you send it over by Friday? That would really help.' },
+        before: 'This draft isn’t good enough. Redo it.',
+        after: 'This is a solid start — mind giving it another pass? A few touches would make it shine.' },
       tighten: {
         before: 'I just wanted to reach out and see if you might have had a chance to look at the proposal I sent over last week.',
         after: 'Have you had a chance to look at last week’s proposal?' },
@@ -1156,6 +1251,17 @@
       chips.forEach(function (b, k) { if (b.getAttribute('aria-pressed') === 'true') i = k; });
       select(chips[(i + 1) % chips.length]);
     };
+    /* The vignette never changes size as pairs swap: both rows reserve their tallest example. */
+    holdTallest(demo.querySelector('.cdoc'), chips, function (probe, b) {
+      var c = CMDS[b.getAttribute('data-cmd')];
+      probe.innerHTML = '<span class="c-old"><mark>' + c.before + '</mark></span>' +
+        '<span class="c-new">' + c.after + '</span>';
+    });
+    holdTallest(demo.querySelector('.cfoot'), chips, function (probe, b) {
+      var c = CMDS[b.getAttribute('data-cmd')];
+      probe.innerHTML = '<span class="chip hot spoken">' + b.textContent + '</span>' +
+        (c.tag ? '<span class="ctag">' + c.tag + '</span>' : '');
+    });
   })();
 
   /* Bring your own AI: one engine is always selected (Claude by default); clicking a card
@@ -1197,6 +1303,56 @@
         card.setAttribute('aria-expanded', 'true');
       });
     });
+  })();
+
+  /* The screenshot lightbox: any shot opens full size over the dimmed page, showing the
+     same file the current color scheme picked. Closes on Esc, the X, or a click outside. */
+  (function () {
+    var lb = document.getElementById('lightbox');
+    if (!lb) return;
+    var big = lb.querySelector('img');
+    var closeBtn = lb.querySelector('.lb-close');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var opener = null, hideTimer = null;
+
+    function onKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); shut(); }
+      /* The close button is the dialog's only control, so Tab simply stays on it. */
+      else if (e.key === 'Tab') { e.preventDefault(); closeBtn.focus(); }
+    }
+    function show(btn) {
+      var shot = btn.querySelector('img');
+      if (!shot) return;
+      clearTimeout(hideTimer);
+      /* The browser's pick for the current scheme; if the lazy load hasn't resolved yet,
+         read the picture's dark source the same way the browser would. */
+      var source = btn.querySelector('source');
+      big.src = shot.currentSrc ||
+        (source && window.matchMedia && window.matchMedia(source.media).matches ? source.srcset : shot.src);
+      big.alt = shot.alt;
+      opener = btn;
+      lb.hidden = false;
+      document.documentElement.style.overflow = 'hidden';
+      if (!reduce) void lb.offsetWidth; /* commit the hidden state so the fade plays */
+      lb.classList.add('open');
+      closeBtn.focus();
+      document.addEventListener('keydown', onKey);
+    }
+    function shut() {
+      document.removeEventListener('keydown', onKey);
+      document.documentElement.style.overflow = '';
+      lb.classList.remove('open');
+      function done() {
+        lb.hidden = true;
+        if (opener) { opener.focus(); opener = null; }
+      }
+      if (reduce) done(); else hideTimer = setTimeout(done, 280);
+    }
+    document.querySelectorAll('button.window').forEach(function (btn) {
+      btn.addEventListener('click', function () { show(btn); });
+    });
+    closeBtn.addEventListener('click', shut);
+    lb.addEventListener('click', function (e) { if (e.target === lb) shut(); });
   })();
 
   /* The rotating vignettes: dictation takes, learned corrections, and snippets each cycle
@@ -1256,6 +1412,10 @@
           clean: 'Thanks again for last night, it was really nice.' }
       ];
       var ti = 0;
+      holdTallest(dictate.querySelector('.dline'), TAKES, function (probe, t) {
+        probe.innerHTML = '<span class="draw">' + t.raw + '</span>' +
+          '<span class="dclean">' + t.clean + '</span>';
+      });
       loop(dictate, function (wait, next) {
         var t = TAKES[ti % TAKES.length]; ti++;
         var words = t.raw.split(' ');
@@ -1282,6 +1442,11 @@
         { pre: 'I’ll send it from ', old: 'Pico', neu: 'Piclo', post: ' tonight.' }
       ];
       var fi = 0;
+      holdTallest(lline, FIXES, function (probe, f) {
+        probe.innerHTML = f.pre +
+          '<span class="swap"><span class="w-old"><s>' + f.old + '</s></span>' +
+          '<span class="w-new">' + f.neu + '</span></span>' + f.post;
+      });
       loop(learn, function (wait, next) {
         wait(2500, function () {
           learn.classList.add('fixed');
@@ -1316,6 +1481,7 @@
           html: 'Yesterday: landed the redesign<br>Today: bug triage<br>Blockers: none' }
       ];
       var si = 0;
+      holdTallest(exp, SNIPS, function (probe, s) { probe.innerHTML = s.html; });
       loop(snip, function (wait, next) {
         var s = SNIPS[si % SNIPS.length]; si++;
         chip.textContent = s.say;
