@@ -337,7 +337,8 @@
   }
   .gesture { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
   .gesture .name { font-weight: 650; font-size: 18px; }
-  .card .gesture { margin-bottom: 12px; justify-content: space-between; gap: 6px 12px; }
+  .card .gesture, .vignette .gesture { justify-content: space-between; gap: 6px 12px; }
+  .card .gesture { margin-bottom: 12px; }
   .card p { font-size: 15.5px; color: var(--ink-2); }
 
   /* ---------- Dictate vignette: words land raw, then tidy themselves ---------- */
@@ -574,7 +575,7 @@
     padding: 5px 13px;
     color: var(--ink-2);
   }
-  .mnote { margin-top: 12px; font-size: 13.5px; color: var(--ink-3); text-align: center; }
+  .mnote { margin-top: 12px; font-size: 13.5px; color: var(--ink-3); text-align: center; text-wrap: balance; }
 
   @media (prefers-reduced-motion: reduce) {
     .tw, .breathe { animation: none; }
@@ -830,7 +831,7 @@
           <div class="gesture"><span class="name">Tidied to your taste</span><kbd>&#8963;&#8997;D</kbd></div>
           <p>The dictation level sets how much cleanup you get: Raw, Light, Full, or Max. Step it with the shortcut, or right from the pill while you speak.</p>
         </div>
-        <div class="dictate-demo reveal d2" role="img" aria-label="Examples of raw spoken takes tidying themselves, like can we push the demo to friday... I mean saturday morning landing as the clean sentence Can we push the demo to Saturday morning?">
+        <div class="dictate-demo reveal d2" role="img" aria-label="Examples of raw spoken takes tidying themselves, like can we move the kickoff to tuesday... I mean wednesday afternoon landing as the clean sentence Can we move the kickoff to Wednesday afternoon?">
           <div class="dpill" aria-hidden="true">
             <svg class="pcircle" viewBox="0 0 48 48">
               <g class="ringbreathe">
@@ -846,8 +847,8 @@
           </div>
           <div class="dbody" aria-hidden="true">
             <p class="dline">
-              <span class="draw"><span class="dw" style="--i:0">can</span> <span class="dw" style="--i:1">we</span> <span class="dw" style="--i:2">push</span> <span class="dw" style="--i:3">the</span> <span class="dw" style="--i:4">demo</span> <span class="dw" style="--i:5">to</span> <span class="dw" style="--i:6">friday...</span> <span class="dw" style="--i:7">I</span> <span class="dw" style="--i:8">mean</span> <span class="dw" style="--i:9">saturday</span> <span class="dw" style="--i:10">morning</span><span class="dcaret"></span></span>
-              <span class="dclean">Can we push the demo to Saturday morning?</span>
+              <span class="draw"><span class="dw" style="--i:0">can</span> <span class="dw" style="--i:1">we</span> <span class="dw" style="--i:2">move</span> <span class="dw" style="--i:3">the</span> <span class="dw" style="--i:4">kickoff</span> <span class="dw" style="--i:5">to</span> <span class="dw" style="--i:6">tuesday...</span> <span class="dw" style="--i:7">I</span> <span class="dw" style="--i:8">mean</span> <span class="dw" style="--i:9">wednesday</span> <span class="dw" style="--i:10">afternoon</span><span class="dcaret"></span></span>
+              <span class="dclean">Can we move the kickoff to Wednesday afternoon?</span>
             </p>
             <span class="dtag">Full clean</span>
           </div>
@@ -908,7 +909,7 @@
         </div>
 
         <div class="vignette reveal d1">
-          <div class="gesture"><kbd>Double-tap &#8997;</kbd><span class="name">Your recent takes, one gesture away</span></div>
+          <div class="gesture"><span class="name">Your recent takes, one gesture away</span><kbd>Double-tap &#8997;</kbd></div>
           <p class="expl">One gesture opens your recent dictations: copy a take, re-insert it, or open it in the editor to fix and teach.</p>
           <div class="window">
             <picture>
@@ -1245,14 +1246,14 @@
       var draw = dictate.querySelector('.draw');
       var dcleanEl = dictate.querySelector('.dclean');
       var TAKES = [
-        { raw: 'can we push the demo to friday... I mean saturday morning',
-          clean: 'Can we push the demo to Saturday morning?' },
-        { raw: 'okay grab milk um those little potatoes and uh coffee too',
-          clean: 'Grab milk, the little potatoes, and coffee.' },
+        { raw: 'can we move the kickoff to tuesday... I mean wednesday afternoon',
+          clean: 'Can we move the kickoff to Wednesday afternoon?' },
+        { raw: 'okay grab milk um those little potatoes and uh bananas too',
+          clean: 'Grab milk, the little potatoes, and bananas.' },
         { raw: 'so yeah the migration um finished last night nothing broke',
           clean: 'Migration finished last night. Nothing broke.' },
-        { raw: 'thanks again for friday um it was really really nice',
-          clean: 'Thanks again for Friday, it was really nice.' }
+        { raw: 'thanks again for last night um it was really really nice',
+          clean: 'Thanks again for last night, it was really nice.' }
       ];
       var ti = 0;
       loop(dictate, function (wait, next) {
@@ -1277,7 +1278,7 @@
       var lline = learn.querySelector('p');
       var FIXES = [
         { pre: 'Meet you at ', old: 'Timavati', neu: 'Timbavati', post: ' next week.' },
-        { pre: 'Dinner with ', old: 'Shivon', neu: 'Siobhan', post: ' on Friday.' },
+        { pre: 'Dinner with ', old: 'Shivon', neu: 'Siobhan', post: ' on Sunday.' },
         { pre: 'I’ll send it from ', old: 'Pico', neu: 'Piclo', post: ' tonight.' }
       ];
       var fi = 0;
@@ -1312,7 +1313,7 @@
         { say: 'snippet my address',
           html: '18 Alpenglow Way<br>Silverpine, CO 80442' },
         { say: 'snippet standup',
-          html: 'Yesterday: shipped the beta<br>Today: bug triage<br>Blockers: none' }
+          html: 'Yesterday: landed the redesign<br>Today: bug triage<br>Blockers: none' }
       ];
       var si = 0;
       loop(snip, function (wait, next) {
