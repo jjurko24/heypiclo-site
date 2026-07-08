@@ -6,11 +6,12 @@
 <title>Hey Piclo: a private voice layer for your Mac</title>
 <meta name="description" content="Hey Piclo is a local-first macOS menu-bar app for voice dictation and voice-driven text editing. On-device transcription, your own AI keys or local models, and audio that is never written to disk.">
 <meta property="og:title" content="Hey Piclo: a private voice layer for your Mac">
-<meta property="og:description" content="Talk instead of type, anywhere on your Mac. On-device transcription, your own AI keys, audio never written to disk. Free first-look beta.">
+<meta property="og:description" content="Talk instead of type, anywhere on your Mac. On-device transcription, your own AI keys or a local model, audio never written to disk. Free first-look beta.">
 <meta property="og:image" content="https://heypiclo.com/img/appearance-dark.png">
 <meta property="og:url" content="https://heypiclo.com/">
 <link rel="icon" type="image/png" href="img/icon-128.png">
 <link rel="apple-touch-icon" href="img/icon-128.png">
+<link rel="preload" as="image" href="img/hero-night.jpg" media="(min-width: 701px)">
 <style>
   :root {
     color-scheme: light dark;
@@ -96,25 +97,32 @@
     .reveal { transform: none; transition: opacity 0.4s ease-out; }
   }
 
-  /* ---------- Hero: the night the circle lives in ---------- */
+  /* ---------- Hero: the mountain night the circle lives in ---------- */
   .hero {
     position: relative;
-    background: linear-gradient(180deg, var(--night-1) 0%, var(--night-2) 55%, #12202C 78%, #0B1119 100%);
+    background: #0A0F16;
     color: var(--night-ink);
-    padding: 0 0 clamp(72px, 9vw, 120px);
+    padding: 0 0 clamp(84px, 10vw, 132px);
     overflow: hidden;
   }
-  .hero .sky, .hero .ridge { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .hero .ridge { top: auto; bottom: 0; height: 34%; }
-  .hero .glowfield {
-    position: absolute; left: 50%; bottom: -12%;
-    width: 130vw; height: 62%;
-    transform: translateX(-50%);
-    background: radial-gradient(55% 60% at 50% 100%, rgba(94, 170, 199, 0.34) 0%, rgba(94, 170, 199, 0.13) 45%, transparent 72%);
+  .hero .photo {
+    position: absolute; inset: 0;
+    background: url(img/hero-night.jpg) center 72% / cover no-repeat;
     pointer-events: none;
   }
+  @media (max-width: 700px) {
+    .hero .photo { background-image: url(img/hero-night-900.jpg); }
+  }
+  .hero .scrim {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(92% 58% at 50% 30%, rgba(6, 9, 14, 0.34), transparent 72%),
+      linear-gradient(180deg, rgba(6, 9, 14, 0.62) 0%, rgba(6, 9, 14, 0.26) 20%,
+                      rgba(6, 9, 14, 0.14) 46%, rgba(7, 11, 17, 0.30) 80%, rgba(7, 11, 17, 0.55) 100%);
+  }
   .tw { animation: twinkle 4.5s ease-in-out infinite; }
-  @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.9; } }
+  @keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.85; } }
 
   .topbar {
     position: relative; z-index: 2;
@@ -142,6 +150,7 @@
     padding: 7px 16px;
     margin-bottom: 26px;
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   .beta-badge .dot {
     width: 7px; height: 7px; border-radius: 50%;
@@ -149,19 +158,20 @@
     box-shadow: 0 0 8px var(--accent-glow);
   }
   .beta-badge b { font-weight: 650; }
-  .beta-badge span.sep { color: var(--night-ink-2); }
 
   .hero h1 {
     font-size: clamp(38px, 6.6vw, 62px);
     line-height: 1.08;
     max-width: 17ch;
     margin: 0 auto 18px;
+    text-shadow: 0 2px 24px rgba(5, 8, 13, 0.55);
   }
   .hero .promise {
     font-size: clamp(17px, 2.2vw, 20px);
     color: var(--night-ink-2);
     max-width: 52ch;
     margin: 0 auto 36px;
+    text-shadow: 0 1px 16px rgba(5, 8, 13, 0.55);
   }
   .hero .promise em { font-style: normal; color: var(--night-ink); }
 
@@ -179,8 +189,102 @@
   .cta:active { transform: translateY(0); }
   .meta { margin-top: 14px; font-size: 13px; color: var(--night-ink-2); }
 
-  .hero-pill { position: relative; z-index: 2; margin: clamp(40px, 5vw, 64px) auto 0; max-width: 520px; padding: 0 24px; }
-  .hero-pill img { width: 100%; height: auto; display: block; }
+  /* ---------- The living pill (a faithful HTML/CSS/SVG recreation of the real overlay) ---------- */
+  .stage { position: relative; z-index: 2; margin: clamp(48px, 7vw, 84px) auto 0; width: fit-content; text-align: center; }
+
+  /* The faint document line the pill is dictating into: words landing, a cursor waiting. */
+  .ghost {
+    font-size: 15px;
+    color: rgba(237, 234, 229, 0.55);
+    margin-bottom: 20px;
+    min-height: 1.5em;
+    text-shadow: 0 1px 12px rgba(5, 8, 13, 0.6);
+  }
+  .ghost .w { opacity: 0; animation: gword 9s linear infinite; animation-delay: calc(var(--w) * 0.5s + 0.6s); }
+  @keyframes gword {
+    0%, 1% { opacity: 0; }
+    5%, 76% { opacity: 0.95; }
+    84%, 100% { opacity: 0; }
+  }
+  .ghost .caret {
+    display: inline-block; width: 1.5px; height: 1.05em;
+    margin-left: 3px; vertical-align: text-bottom;
+    background: var(--accent-hi);
+    box-shadow: 0 0 7px rgba(120, 217, 254, 0.8);
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* The capsule: frosted graphite over the night, a soft glass top-light, and the one living
+     Tide glow hugging the rim, matching the real overlay's material and proportions. */
+  .livepill {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 15px;
+    padding: 15px 26px;
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 55%),
+      rgba(26, 30, 36, 0.80);
+    backdrop-filter: blur(24px) saturate(1.15);
+    -webkit-backdrop-filter: blur(24px) saturate(1.15);
+    border: 1px solid rgba(94, 170, 199, 0.42);
+    box-shadow:
+      0 0 3px rgba(94, 170, 199, 0.35),
+      0 0 22px rgba(94, 170, 199, 0.26),
+      0 18px 60px rgba(0, 0, 0, 0.5);
+    animation: pillfloat 7s ease-in-out infinite;
+  }
+  @keyframes pillfloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+  .livepill .label {
+    font-size: 19px; font-weight: 500;
+    color: var(--night-ink);
+    letter-spacing: 0.002em;
+  }
+
+  /* The Piclo Circle, listening: open tapered ring, gap at the upper right, the glimmer seated
+     in the opening. Breathes; the glimmer blooms. */
+  .pcircle { width: 38px; height: 38px; flex: none; display: block; }
+  .pcircle .ringbreathe { animation: ringbreathe 2.7s ease-in-out infinite; }
+  @keyframes ringbreathe { 0%, 100% { opacity: 0.82; } 50% { opacity: 1; } }
+  .pcircle .ringglow { fill: none; stroke: var(--accent-raw); stroke-width: 6; stroke-linecap: round; opacity: 0.32; filter: blur(2.5px); }
+  .pcircle .ringbase { fill: none; stroke: var(--accent-raw); stroke-width: 2.6; stroke-linecap: round; }
+  .pcircle .ringswell { fill: none; stroke: var(--accent-raw); stroke-width: 4.4; stroke-linecap: round; }
+  .pcircle .bloom {
+    fill: var(--accent-hi); opacity: 0.28; filter: blur(4px);
+    transform-box: fill-box; transform-origin: center;
+    animation: bloom 2.7s ease-in-out infinite;
+  }
+  @keyframes bloom { 0%, 100% { transform: scale(1); opacity: 0.2; } 50% { transform: scale(1.5); opacity: 0.4; } }
+  .pcircle .glim {
+    fill: var(--accent-hi);
+    filter: drop-shadow(0 0 3.5px rgba(120, 217, 254, 0.9));
+    transform-box: fill-box; transform-origin: center;
+    animation: glim 2.7s ease-in-out infinite;
+  }
+  @keyframes glim { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.22); } }
+
+  /* The live waveform: a fixed bell envelope (tallest center) whose bars rise and fall together,
+     with a gentle per-bar shimmer, exactly the real pill's motion vocabulary. */
+  .wavewrap { display: flex; align-items: center; animation: voice 3.6s ease-in-out infinite; }
+  @keyframes voice { 0%, 100% { transform: scaleY(0.78); } 40% { transform: scaleY(1); } 65% { transform: scaleY(0.86); } }
+  .wave { display: flex; align-items: center; gap: 3px; height: 34px; }
+  .wave i {
+    display: block; width: 2.4px; border-radius: 2px;
+    height: calc(4px + var(--e) * 24px);
+    background: var(--accent-raw);
+    opacity: calc(0.25 + var(--e) * 0.6);
+    animation: bar 0.95s ease-in-out var(--d) infinite alternate;
+  }
+  @keyframes bar { from { transform: scaleY(0.38); } to { transform: scaleY(1); } }
+
+  @media (max-width: 560px) {
+    .livepill { gap: 12px; padding: 13px 20px; }
+    .livepill .label { font-size: 17px; }
+    .pcircle { width: 32px; height: 32px; }
+    .wave { gap: 2.4px; }
+    .wave i { width: 2px; height: calc(3px + var(--e) * 19px); }
+  }
 
   /* ---------- Gesture cards ---------- */
   .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 34px; }
@@ -204,6 +308,7 @@
   }
   .band h2 { color: #EDEAE5; }
   .band .lede { color: #A9A49B; }
+  .band kbd { background: #262B33; border-color: #363C46; color: #EDEAE5; }
   .chips { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; max-width: 720px; }
   .chips.center { justify-content: center; }
   .chip {
@@ -287,9 +392,9 @@
   .vignette .note { font-size: 13.5px; color: var(--ink-3); }
 
   /* ---------- Modes ---------- */
-  .modehead { display: flex; align-items: baseline; gap: 9px; font-weight: 650; font-size: 16px; }
+  .modehead { display: flex; align-items: baseline; gap: 9px; font-weight: 650; font-size: 15px; }
   .modehead .auto { font-size: 12.5px; color: var(--ink-3); font-weight: 500; }
-  .demo.prose { font-size: 15px; line-height: 1.55; min-height: 0; }
+  .demo.prose { font-size: 14.5px; line-height: 1.55; min-height: 0; }
   .mchips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
   .mchip {
     font-size: 14.5px;
@@ -303,6 +408,10 @@
 
   @media (prefers-reduced-motion: reduce) {
     .tw, .breathe { animation: none; }
+    .livepill, .wavewrap, .wave i { animation: none; }
+    .pcircle .ringbreathe, .pcircle .bloom, .pcircle .glim { animation: none; }
+    .ghost .w { animation: none; opacity: 0.9; }
+    .ghost .caret { animation: none; }
     .w-old { animation: none; opacity: 0; }
     .w-new, .learnpill, .expansion { animation: none; opacity: 1; transform: none; }
     .chip, .chip:hover { transform: none; }
@@ -317,19 +426,6 @@
     background: var(--card);
   }
   .window img { width: 100%; height: auto; display: block; }
-  .shotstack { position: relative; margin-top: 44px; }
-  .shotstack .primary { width: min(760px, 78%); }
-  .shotstack .overlap {
-    position: absolute;
-    right: 0; bottom: -9%;
-    width: min(460px, 48%);
-  }
-  .shotstack::after { content: ""; display: block; padding-bottom: 7%; }
-  @media (max-width: 640px) {
-    .shotstack .primary { width: 100%; }
-    .shotstack .overlap { position: static; width: 92%; margin: 16px 0 0 auto; }
-    .shotstack::after { display: none; }
-  }
   .caption { margin-top: 40px; font-size: 14px; color: var(--ink-3); max-width: 58ch; }
 
   .split { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(28px, 5vw, 56px); align-items: center; margin-top: 8px; }
@@ -390,60 +486,17 @@
 </head>
 <body>
 
-<!-- ============ Hero: night sky, ridge line, the living circle ============ -->
+<!-- ============ Hero: the mountain night, the living pill ============ -->
 <header class="hero">
-  <svg class="sky" aria-hidden="true">
-    <circle cx="33.1%" cy="10.4%" r="0.5" fill="#CFE4EE" opacity="0.29" class="tw"/>
-    <circle cx="53.4%" cy="20.9%" r="0.5" fill="#CFE4EE" opacity="0.8"/>
-    <circle cx="22.6%" cy="7.2%" r="0.9" fill="#CFE4EE" opacity="0.29"/>
-    <circle cx="10.7%" cy="23.8%" r="1.1" fill="#CFE4EE" opacity="0.32"/>
-    <circle cx="23.4%" cy="33.7%" r="0.5" fill="#CFE4EE" opacity="0.6"/>
-    <circle cx="40.1%" cy="50.8%" r="0.5" fill="#CFE4EE" opacity="0.58" class="tw"/>
-    <circle cx="14.8%" cy="23.5%" r="1.1" fill="#CFE4EE" opacity="0.32"/>
-    <circle cx="31.6%" cy="43.0%" r="0.6" fill="#CFE4EE" opacity="0.31"/>
-    <circle cx="56.8%" cy="12.2%" r="0.5" fill="#CFE4EE" opacity="0.58"/>
-    <circle cx="8.0%" cy="5.9%" r="0.6" fill="#CFE4EE" opacity="0.55"/>
-    <circle cx="53.0%" cy="41.1%" r="0.9" fill="#CFE4EE" opacity="0.6" class="tw"/>
-    <circle cx="45.5%" cy="17.7%" r="0.6" fill="#CFE4EE" opacity="0.67"/>
-    <circle cx="25.4%" cy="31.1%" r="1.1" fill="#CFE4EE" opacity="0.55"/>
-    <circle cx="35.0%" cy="25.0%" r="1.1" fill="#CFE4EE" opacity="0.84"/>
-    <circle cx="13.3%" cy="23.5%" r="0.7" fill="#CFE4EE" opacity="0.34"/>
-    <circle cx="48.9%" cy="4.9%" r="0.5" fill="#CFE4EE" opacity="0.71" class="tw"/>
-    <circle cx="57.0%" cy="45.9%" r="0.7" fill="#CFE4EE" opacity="0.45"/>
-    <circle cx="35.6%" cy="27.3%" r="0.9" fill="#CFE4EE" opacity="0.29"/>
-    <circle cx="11.0%" cy="16.2%" r="0.5" fill="#CFE4EE" opacity="0.29"/>
-    <circle cx="69.3%" cy="34.7%" r="0.9" fill="#CFE4EE" opacity="0.42"/>
-    <circle cx="39.0%" cy="35.8%" r="0.5" fill="#CFE4EE" opacity="0.81" class="tw"/>
-    <circle cx="36.1%" cy="32.9%" r="0.9" fill="#CFE4EE" opacity="0.29"/>
-    <circle cx="75.8%" cy="9.3%" r="0.6" fill="#CFE4EE" opacity="0.49"/>
-    <circle cx="90.0%" cy="27.3%" r="0.6" fill="#CFE4EE" opacity="0.52"/>
-    <circle cx="54.7%" cy="46.3%" r="0.9" fill="#CFE4EE" opacity="0.77"/>
-    <circle cx="28.7%" cy="23.3%" r="0.7" fill="#CFE4EE" opacity="0.66" class="tw"/>
-    <circle cx="38.5%" cy="14.3%" r="0.5" fill="#CFE4EE" opacity="0.36"/>
-    <circle cx="24.3%" cy="14.4%" r="0.9" fill="#CFE4EE" opacity="0.75"/>
-    <circle cx="19.5%" cy="16.8%" r="0.6" fill="#CFE4EE" opacity="0.5"/>
-    <circle cx="37.4%" cy="30.8%" r="0.6" fill="#CFE4EE" opacity="0.66"/>
-    <circle cx="51.5%" cy="33.3%" r="0.5" fill="#CFE4EE" opacity="0.52" class="tw"/>
-    <circle cx="85.6%" cy="49.6%" r="1.1" fill="#CFE4EE" opacity="0.49"/>
-    <circle cx="40.3%" cy="8.1%" r="0.9" fill="#CFE4EE" opacity="0.29"/>
-    <circle cx="8.5%" cy="13.2%" r="0.6" fill="#CFE4EE" opacity="0.32"/>
-    <circle cx="59.7%" cy="8.0%" r="1.1" fill="#CFE4EE" opacity="0.34"/>
-    <circle cx="11.7%" cy="20.8%" r="0.5" fill="#CFE4EE" opacity="0.29" class="tw"/>
-    <circle cx="22.0%" cy="21.4%" r="0.7" fill="#CFE4EE" opacity="0.82"/>
-    <circle cx="59.8%" cy="26.2%" r="0.5" fill="#CFE4EE" opacity="0.76"/>
-    <circle cx="97.3%" cy="25.8%" r="0.9" fill="#CFE4EE" opacity="0.44"/>
-    <circle cx="15.8%" cy="39.7%" r="0.7" fill="#CFE4EE" opacity="0.54"/>
-    <circle cx="68.4%" cy="28.3%" r="0.6" fill="#CFE4EE" opacity="0.82" class="tw"/>
-    <circle cx="52.7%" cy="10.2%" r="1.1" fill="#CFE4EE" opacity="0.8"/>
-    <circle cx="74.8%" cy="17.6%" r="0.5" fill="#CFE4EE" opacity="0.67"/>
-    <circle cx="27.1%" cy="21.0%" r="0.6" fill="#CFE4EE" opacity="0.46"/>
-    <circle cx="23.4%" cy="29.5%" r="1.1" fill="#CFE4EE" opacity="0.45"/>
-    <circle cx="23.4%" cy="42.8%" r="0.6" fill="#CFE4EE" opacity="0.73" class="tw"/>
-  </svg>
-  <div class="glowfield" aria-hidden="true"></div>
-  <svg class="ridge" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-    <path d="M0 210 L140 150 L300 205 L460 120 L610 195 L780 105 L950 190 L1120 135 L1300 200 L1440 160 L1440 320 L0 320 Z" fill="#101A26" opacity="0.85"/>
-    <path d="M0 265 L180 205 L340 255 L520 175 L700 250 L900 165 L1080 245 L1260 195 L1440 240 L1440 320 L0 320 Z" fill="#0B1119"/>
+  <div class="photo" aria-hidden="true"></div>
+  <div class="scrim" aria-hidden="true"></div>
+  <svg class="sky" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:60%; pointer-events:none;">
+    <circle cx="18%" cy="22%" r="0.9" fill="#CFE4EE" opacity="0.5" class="tw"/>
+    <circle cx="36%" cy="12%" r="0.7" fill="#CFE4EE" opacity="0.5" class="tw" style="animation-delay:-1.4s"/>
+    <circle cx="57%" cy="30%" r="0.8" fill="#CFE4EE" opacity="0.5" class="tw" style="animation-delay:-2.6s"/>
+    <circle cx="74%" cy="16%" r="0.9" fill="#CFE4EE" opacity="0.5" class="tw" style="animation-delay:-3.4s"/>
+    <circle cx="88%" cy="38%" r="0.7" fill="#CFE4EE" opacity="0.5" class="tw" style="animation-delay:-0.8s"/>
+    <circle cx="9%" cy="42%" r="0.7" fill="#CFE4EE" opacity="0.5" class="tw" style="animation-delay:-2s"/>
   </svg>
 
   <div class="wrap">
@@ -470,48 +523,64 @@
       </svg>
 
       <div>
-        <span class="beta-badge"><span class="dot"></span><b>Free first-look beta</b><span class="sep">&middot;</span>get in early, help shape it</span>
+        <span class="beta-badge"><span class="dot"></span><b>Free first-look beta</b></span>
       </div>
       <h1 class="serif">Your Mac, finally listening the way you think.</h1>
-      <p class="promise">Talk instead of type, anywhere on your Mac. Transcription runs on the machine, cleanup runs on your own AI keys or a local model, and audio is <em>never written to disk.</em></p>
+      <p class="promise">Talk instead of type, anywhere on your Mac. Piclo transcribes on-device, cleans up with your own AI keys or a local model, and <em>never writes your audio to disk.</em></p>
       <a class="cta" href="https://updates.heypiclo.com/download">Download for macOS</a>
-      <p class="meta">macOS 14 or later &middot; free beta &middot; auto-updates</p>
+      <p class="meta">macOS 14+ &middot; free first-look beta &middot; auto-updates</p>
     </div>
 
-    <div class="hero-pill">
-      <img src="img/pill-dark.png" width="760" height="240" alt="The Hey Piclo listening pill: a small frosted capsule reading Dictating, speak naturally, with the Piclo Circle orb and a live waveform">
+    <!-- The living pill: the real overlay, recreated. Words land in the page behind it. -->
+    <div class="stage" role="img" aria-label="The Hey Piclo listening pill: a small frosted capsule with the Piclo Circle glowing, the word Listening, and a live waveform moving with the voice">
+      <p class="ghost" aria-hidden="true"><span class="w" style="--w:0">Meet</span> <span class="w" style="--w:1">you</span> <span class="w" style="--w:2">at</span> <span class="w" style="--w:3">the</span> <span class="w" style="--w:4">overlook</span> <span class="w" style="--w:5">at</span> <span class="w" style="--w:6">sunset.</span><span class="caret"></span></p>
+      <div class="livepill" aria-hidden="true">
+        <svg class="pcircle" viewBox="0 0 48 48">
+          <g class="ringbreathe">
+            <path class="ringglow" d="M44.64 19.61 A21.1 21.1 0 1 1 28.39 3.36"/>
+            <path class="ringbase" d="M44.64 19.61 A21.1 21.1 0 1 1 28.39 3.36"/>
+            <path class="ringswell" d="M3.36 19.61 A21.1 21.1 0 0 1 28.39 3.36"/>
+          </g>
+          <circle class="bloom" cx="38.9" cy="9.1" r="7.2"/>
+          <circle class="glim" cx="38.9" cy="9.1" r="4.3"/>
+        </svg>
+        <span class="label">Listening</span>
+        <span class="wavewrap"><span class="wave">
+          <i style="--e:0;--d:0s"></i><i style="--e:0.04;--d:-0.11s"></i><i style="--e:0.11;--d:-0.22s"></i><i style="--e:0.19;--d:-0.33s"></i><i style="--e:0.29;--d:-0.44s"></i><i style="--e:0.39;--d:-0.55s"></i><i style="--e:0.49;--d:-0.66s"></i><i style="--e:0.59;--d:-0.77s"></i><i style="--e:0.69;--d:-0.88s"></i><i style="--e:0.78;--d:-0.99s"></i><i style="--e:0.86;--d:-1.1s"></i><i style="--e:0.92;--d:-1.21s"></i><i style="--e:0.96;--d:-1.32s"></i><i style="--e:0.99;--d:-1.43s"></i><i style="--e:1;--d:-1.54s"></i><i style="--e:0.99;--d:-1.65s"></i><i style="--e:0.96;--d:-1.76s"></i><i style="--e:0.92;--d:-1.87s"></i><i style="--e:0.86;--d:-1.98s"></i><i style="--e:0.78;--d:-2.09s"></i><i style="--e:0.69;--d:-2.2s"></i><i style="--e:0.59;--d:-2.31s"></i><i style="--e:0.49;--d:-2.42s"></i><i style="--e:0.39;--d:-2.53s"></i><i style="--e:0.29;--d:-2.64s"></i><i style="--e:0.19;--d:-2.75s"></i><i style="--e:0.11;--d:-2.86s"></i><i style="--e:0.04;--d:-2.97s"></i><i style="--e:0;--d:-3.08s"></i>
+        </span></span>
+      </div>
     </div>
   </div>
 </header>
 
 <main>
 
-  <!-- ============ Two gestures ============ -->
+  <!-- ============ Dictate anywhere ============ -->
   <section>
     <div class="wrap">
       <div class="col reveal">
-        <h2 class="serif">Two gestures. Two intents.</h2>
-        <p class="lede">Dictation and commands live on different keys, so they never collide. No wake word, no window to find.</p>
+        <h2 class="serif">Dictate anywhere</h2>
+        <p class="lede">No wake word, no window to find. Dictation and commands live on different keys, so they never collide.</p>
       </div>
       <div class="cards">
         <div class="card reveal">
           <div class="gesture"><kbd>&#8963;</kbd><kbd>&#8963;</kbd><span class="name">Dictate</span></div>
-          <p>Double-tap Control and speak. Your words are transcribed on your Mac, tidied to the level you choose, and typed right where your cursor is. Tap twice again to finish.</p>
+          <p>Double-tap Control and speak. Your words are transcribed on your Mac and typed right where your cursor is. Tap twice again to finish.</p>
         </div>
         <div class="card reveal d1">
-          <div class="gesture"><kbd>Hold left &#8984;</kbd><span class="name">Command Mode</span></div>
-          <p>Select some text, hold the key, and say what you want done with it. Piclo edits, transforms, formats, or researches in place.</p>
+          <div class="gesture"><kbd>&#8963;&#8997;D</kbd><span class="name">Tidied to your taste</span></div>
+          <p>The dictation level sets how much cleanup you get: Raw, Light, Full, or Max. Step it with the shortcut, or right from the pill while you speak.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ Command Mode showcase ============ -->
+  <!-- ============ Command your text ============ -->
   <section class="band">
     <div class="wrap">
       <div class="col center reveal">
-        <h2 class="serif">Say what you want done</h2>
-        <p class="lede" style="margin: 0 auto;">Plain words in, real edits out. Command Mode reads your selection, picks the right model for the job, and does the work where you are.</p>
+        <h2 class="serif">Command your text</h2>
+        <p class="lede" style="margin: 0 auto;">Select some text, hold <kbd>left &#8984;</kbd>, and say what you want done with it. Plain words in, real edits out: Piclo edits, transforms, formats, or researches in place.</p>
       </div>
       <div class="chips center reveal d1" style="margin-left: auto; margin-right: auto;">
         <span class="chip hot">Tighten this up</span>
@@ -522,11 +591,11 @@
         <span class="chip">Research this and draft an answer</span>
         <span class="chip">Think more deeply about this</span>
       </div>
-      <p class="foot center reveal d2" style="margin-left: auto; margin-right: auto; text-align: center;">Everyday edits run on your <b>Standard</b> model. Analysis and web research step up to <b>Strong</b>. Saying &ldquo;think more deeply&rdquo; jumps to <b>Deep</b>. All on keys you bring.</p>
+      <p class="foot center reveal d2" style="margin-left: auto; margin-right: auto; text-align: center;">Piclo uses the right model for the job: quick edits stay light, deeper work can step up when you ask. All on <b>keys you bring</b>.</p>
     </div>
   </section>
 
-  <!-- ============ It learns you ============ -->
+  <!-- ============ Fix it once ============ -->
   <section>
     <div class="wrap">
       <div class="col reveal">
@@ -537,7 +606,7 @@
       <div class="duo">
         <div class="vignette reveal">
           <h3>Correct it, and it learns</h3>
-          <p class="expl">Double-tap Option for your recent dictations. Fix a misheard word in the editor, or clean up a whole take, and the correction joins your dictionary. The same word lands right next time.</p>
+          <p class="expl">Fix a misheard word once, and the correction joins your dictionary. The same word lands right next time.</p>
           <div class="demo" aria-label="Example: the misheard word Timavati is corrected to Timbavati and Piclo learns it">
             <p>Meet you at <span class="swap"><span class="w-old"><s>Timavati</s></span><span class="w-new">Timbavati</span></span> next week.</p>
             <span class="learnpill">Learned 1 correction</span>
@@ -545,20 +614,21 @@
         </div>
 
         <div class="vignette reveal d1">
-          <h3>Boilerplate, by voice</h3>
-          <p class="expl">Save a snippet once, then say <b>&ldquo;snippet my sign-off&rdquo;</b> mid-dictation and the full text drops in. In Command Mode, intent is enough: &ldquo;sign off with my signature.&rdquo;</p>
-          <div class="demo" aria-label="Example: saying snippet my sign-off expands into a saved signature with the date filled in">
-            <span class="saychip">snippet my sign-off</span>
-            <p class="expansion">Warm regards,<br>John<br><span class="var">July 8, 2026</span></p>
+          <h3>Your recent takes, one gesture away</h3>
+          <p class="expl">Double-tap Option for your recent dictations: copy a take, re-insert it, or open it in the editor to fix and teach.</p>
+          <div class="window">
+            <picture>
+              <source srcset="img/recent-dark.png" media="(prefers-color-scheme: dark)">
+              <img src="img/recent-light.png" width="1000" height="574" loading="lazy" alt="The Recent dictations panel: your last takes, ready to copy, re-insert, or fix and learn from">
+            </picture>
           </div>
-          <p class="note">Snippets can carry live values like {date}, {time}, and {clipboard}, filled in the moment they land.</p>
         </div>
       </div>
 
       <div class="split" style="margin-top: 56px;">
         <div class="reveal">
           <h2 class="serif" style="font-size: clamp(23px, 3vw, 28px);">Your vocabulary rides along</h2>
-          <p class="lede" style="font-size: 16.5px;">Every term you teach it, and every fix it learns, travels with the transcript as hints to the cleanup model. Names, jargon, and brands stick, with no training and no waiting. When a correction looks like a name, Piclo notices and offers to remember it on its own.</p>
+          <p class="lede" style="font-size: 16.5px;">Names, jargon, and brands stay with the transcript as hints to cleanup. Teach Piclo once; the same word lands right next time. And when a correction looks like a name, Piclo notices and offers to remember it on its own.</p>
         </div>
         <div class="window reveal d1">
           <picture>
@@ -570,21 +640,34 @@
     </div>
   </section>
 
-  <!-- ============ Modes ============ -->
+  <!-- ============ Snippets and modes ============ -->
   <section style="padding-top: 0;">
     <div class="wrap">
       <div class="col reveal">
-        <h2 class="serif">It knows where you're typing</h2>
-        <p class="lede">Writing modes shape how cleanup writes. Piclo picks the mode from the app you're dictating into, so Mail gets an email shape and Slack stays casual. Want it pinned? Just say <b style="color: var(--ink);">&ldquo;switch to email mode.&rdquo;</b></p>
+        <h2 class="serif">Snippets and modes</h2>
+        <p class="lede">Boilerplate by voice, and writing that fits where it lands.</p>
       </div>
       <div class="duo">
         <div class="vignette reveal">
-          <div class="modehead">Message mode <span class="auto">picked up in Slack</span></div>
-          <div class="demo prose"><p>Can we push the demo to Thursday afternoon? My morning is packed.</p></div>
+          <h3>Boilerplate, by voice</h3>
+          <p class="expl">Save a snippet once, then say <b>&ldquo;snippet my sign-off&rdquo;</b> mid-dictation and the full text drops in.</p>
+          <div class="demo" aria-label="Example: saying snippet my sign-off expands into a saved signature with the date filled in">
+            <span class="saychip">snippet my sign-off</span>
+            <p class="expansion">Warm regards,<br>John<br><span class="var">July 8, 2026</span></p>
+          </div>
+          <p class="note">Snippets can carry live values like {date}, {time}, and {clipboard}, filled in the moment they land.</p>
         </div>
         <div class="vignette reveal d1">
-          <div class="modehead">Email mode <span class="auto">picked up in Mail</span></div>
-          <div class="demo prose"><p>Hi Sam,<br><br>Could we move the demo to Thursday afternoon? My morning is fully booked.<br><br>Thanks,<br>John</p></div>
+          <h3>It knows where you're typing</h3>
+          <p class="expl">Piclo picks a writing mode from the app you're dictating into, so Mail gets an email shape and Slack stays casual. Want it pinned? Just say <b>&ldquo;switch to email mode.&rdquo;</b></p>
+          <div>
+            <div class="modehead">Message mode <span class="auto">picked up in Slack</span></div>
+            <div class="demo prose" style="margin-top: 6px;"><p>Can we push the demo to Thursday afternoon? My morning is packed.</p></div>
+          </div>
+          <div>
+            <div class="modehead">Email mode <span class="auto">picked up in Mail</span></div>
+            <div class="demo prose" style="margin-top: 6px;"><p>Hi Sam,<br><br>Could we move the demo to Thursday afternoon? My morning is fully booked.<br><br>Thanks,<br>John</p></div>
+          </div>
         </div>
       </div>
       <div class="mchips reveal d1">
@@ -596,37 +679,25 @@
         <span class="mchip">Social</span>
         <span class="mchip">Your own, with your own prompt</span>
       </div>
-      <p class="caption reveal d2" style="margin-top: 22px;">Separate from modes, the dictation level sets how much cleanup you get: Raw, Light, Full, or Max. Step it with <kbd>&#8963;&#8997;D</kbd> or from the pill while you dictate.</p>
-    </div>
-  </section>
 
-  <!-- ============ Real screenshots: the instrument ============ -->
-  <section style="background: var(--bg-soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
-    <div class="wrap">
-      <div class="col reveal">
-        <h2 class="serif">A finely tuned instrument</h2>
-        <p class="lede">Four themes, one living color. The Accent Signal slider tunes the shade Piclo listens in, across a curated spectrum from Ember to Moon. This page wears Tide, the default.</p>
-      </div>
-      <div class="shotstack">
-        <div class="window primary reveal">
+      <div class="split" style="margin-top: 64px;">
+        <div class="reveal">
+          <h2 class="serif" style="font-size: clamp(23px, 3vw, 28px);">A finely tuned instrument</h2>
+          <p class="lede" style="font-size: 16.5px;">Piclo has four themes and one living accent color. Tune the signal once; the whole app follows. This page wears Tide, the default.</p>
+          <p class="caption" style="margin-top: 18px;">Real screenshots from the current beta. The panels follow your Mac's light or dark appearance, and so does this page.</p>
+        </div>
+        <div class="window reveal d1">
           <picture>
             <source srcset="img/appearance-dark.png" media="(prefers-color-scheme: dark)">
-            <img src="img/appearance-light.png" width="1200" height="979" loading="lazy" alt="Hey Piclo's Appearance settings: five theme tiles, the Accent Signal spectrum slider set to Tide, and a live listening preview of the Piclo Circle">
-          </picture>
-        </div>
-        <div class="window overlap reveal d2">
-          <picture>
-            <source srcset="img/recent-dark.png" media="(prefers-color-scheme: dark)">
-            <img src="img/recent-light.png" width="1000" height="767" loading="lazy" alt="The Recent dictations panel: your last takes, ready to copy, re-insert, or fix and learn from">
+            <img src="img/appearance-light.png" width="1200" height="979" loading="lazy" alt="Hey Piclo's Appearance settings: theme tiles, the Accent Signal spectrum slider set to Tide, and a live listening preview of the Piclo Circle">
           </picture>
         </div>
       </div>
-      <p class="caption reveal">Real screenshots from the current beta. The panels follow your Mac's light or dark appearance, and so does this page.</p>
     </div>
   </section>
 
   <!-- ============ Privacy ============ -->
-  <section>
+  <section style="background: var(--bg-soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
     <div class="wrap">
       <div class="split">
         <div>
@@ -659,14 +730,14 @@
   </section>
 
   <!-- ============ Beta ============ -->
-  <section style="padding-top: 24px;">
+  <section style="padding-top: clamp(48px, 6vw, 72px);">
     <div class="wrap">
       <div class="beta reveal">
         <h2 class="serif">You're early. That's the point.</h2>
-        <p>Hey Piclo is a first look, free while it grows. Updates ship often and install themselves.</p>
-        <p>If something breaks, or you wish it did something it doesn't, <a href="mailto:jjurko@gmail.com">tell John</a>. Every note gets read, and the beta is shaped by exactly these notes.</p>
+        <p>Hey Piclo is a free first look. Get in early, help shape it: updates ship often and install themselves.</p>
+        <p>If something breaks, or you wish it did something it doesn't, <a href="mailto:john@heypiclo.com">tell John</a>. Every note gets read, and the beta is shaped by exactly these notes.</p>
         <a class="cta" href="https://updates.heypiclo.com/download">Download for macOS</a>
-        <p class="meta">macOS 14 or later &middot; free beta &middot; auto-updates</p>
+        <p class="meta">macOS 14+ &middot; free first-look beta &middot; auto-updates</p>
       </div>
     </div>
   </section>
@@ -674,7 +745,7 @@
 </main>
 
 <footer>
-  Hey Piclo beta &middot; <a href="https://updates.heypiclo.com/changelog.html">changelog</a> &middot; <a href="mailto:jjurko@gmail.com">feedback</a> &middot; made for the Mac
+  Hey Piclo beta &middot; <a href="https://updates.heypiclo.com/changelog.html">changelog</a> &middot; <a href="mailto:john@heypiclo.com">feedback</a> &middot; made for the Mac
 </footer>
 
 <script>
