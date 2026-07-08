@@ -564,16 +564,17 @@
   .demo.prose { font-size: 14.5px; line-height: 1.55; min-height: 0; }
   /* The mode roster: informational labels, not tabs. Quieter than every clickable chip
      on the page (smaller, transparent, no hover, no selected state) so nothing begs a click. */
-  .mchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; }
+  .mchips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 30px; }
   .mchip {
     font-size: 13.5px;
     background: transparent;
     border: 1px solid var(--line);
+    border-color: color-mix(in srgb, var(--ink-3) 55%, transparent);
     border-radius: 999px;
     padding: 5px 13px;
-    color: var(--ink-3);
+    color: var(--ink-2);
   }
-  .mnote { margin-top: 12px; font-size: 13.5px; color: var(--ink-3); }
+  .mnote { margin-top: 12px; font-size: 13.5px; color: var(--ink-3); text-align: center; }
 
   @media (prefers-reduced-motion: reduce) {
     .tw, .breathe { animation: none; }
@@ -829,7 +830,7 @@
           <div class="gesture"><span class="name">Tidied to your taste</span><kbd>&#8963;&#8997;D</kbd></div>
           <p>The dictation level sets how much cleanup you get: Raw, Light, Full, or Max. Step it with the shortcut, or right from the pill while you speak.</p>
         </div>
-        <div class="dictate-demo reveal d2" role="img" aria-label="Examples of raw spoken takes tidying themselves, like um so can we like push the demo to thursday afternoon landing as the clean sentence Can we push the demo to Thursday afternoon?">
+        <div class="dictate-demo reveal d2" role="img" aria-label="Examples of raw spoken takes tidying themselves, like can we push the demo to friday... I mean saturday morning landing as the clean sentence Can we push the demo to Saturday morning?">
           <div class="dpill" aria-hidden="true">
             <svg class="pcircle" viewBox="0 0 48 48">
               <g class="ringbreathe">
@@ -845,8 +846,8 @@
           </div>
           <div class="dbody" aria-hidden="true">
             <p class="dline">
-              <span class="draw"><span class="dw" style="--i:0">um</span> <span class="dw" style="--i:1">so</span> <span class="dw" style="--i:2">can</span> <span class="dw" style="--i:3">we</span> <span class="dw" style="--i:4">like</span> <span class="dw" style="--i:5">push</span> <span class="dw" style="--i:6">the</span> <span class="dw" style="--i:7">demo</span> <span class="dw" style="--i:8">to</span> <span class="dw" style="--i:9">thursday</span> <span class="dw" style="--i:10">afternoon</span><span class="dcaret"></span></span>
-              <span class="dclean">Can we push the demo to Thursday afternoon?</span>
+              <span class="draw"><span class="dw" style="--i:0">can</span> <span class="dw" style="--i:1">we</span> <span class="dw" style="--i:2">push</span> <span class="dw" style="--i:3">the</span> <span class="dw" style="--i:4">demo</span> <span class="dw" style="--i:5">to</span> <span class="dw" style="--i:6">friday...</span> <span class="dw" style="--i:7">I</span> <span class="dw" style="--i:8">mean</span> <span class="dw" style="--i:9">saturday</span> <span class="dw" style="--i:10">morning</span><span class="dcaret"></span></span>
+              <span class="dclean">Can we push the demo to Saturday morning?</span>
             </p>
             <span class="dtag">Full clean</span>
           </div>
@@ -1122,27 +1123,38 @@
         after: 'Start with a vendor. Sync is a solved problem with brutal edge cases, and your effort is worth more in the editor. Build only when a vendor limit actually bites.',
         tag: 'Stepped up to a deeper model' }
     };
-    var chips = document.querySelectorAll('.chip[data-cmd]');
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.chip[data-cmd]'));
     function plain(html) {
       var d = document.createElement('div');
       d.innerHTML = html.replace(/<br>/g, ' ');
       return d.textContent;
     }
+    /* Selecting a chip (by click or by the rotator's auto-advance) swaps the pair in and
+       moves aria-pressed. It never moves keyboard focus. */
+    function select(btn) {
+      var c = CMDS[btn.getAttribute('data-cmd')];
+      if (!c) return;
+      oldEl.innerHTML = c.before;
+      newEl.innerHTML = c.after;
+      chipEl.textContent = btn.textContent;
+      if (c.tag) { tagEl.textContent = c.tag; tagEl.hidden = false; } else { tagEl.hidden = true; }
+      chips.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      demo.setAttribute('aria-label', 'Example: the selected text, ' + plain(c.before) +
+        ' is spoken over with ' + btn.textContent + ' and becomes: ' + plain(c.after));
+    }
     chips.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var c = CMDS[btn.getAttribute('data-cmd')];
-        if (!c) return;
-        oldEl.innerHTML = c.before;
-        newEl.innerHTML = c.after;
-        chipEl.textContent = btn.textContent;
-        if (c.tag) { tagEl.textContent = c.tag; tagEl.hidden = false; } else { tagEl.hidden = true; }
-        chips.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
-        demo.setAttribute('aria-label', 'Example: the selected text, ' + plain(c.before) +
-          ' is spoken over with ' + btn.textContent + ' and becomes: ' + plain(c.after));
+        select(btn);
         /* The rotator below owns the looping; this just asks it to start this pair promptly. */
         demo.dispatchEvent(new Event('cmd-restart'));
       });
     });
+    /* Hook for the rotator: step the highlight to the next chip and load its pair. */
+    demo.advanceChip = function () {
+      var i = 0;
+      chips.forEach(function (b, k) { if (b.getAttribute('aria-pressed') === 'true') i = k; });
+      select(chips[(i + 1) % chips.length]);
+    };
   })();
 
   /* Bring your own AI: one engine is always selected (Claude by default); clicking a card
@@ -1208,17 +1220,23 @@
       return { restart: function () { if (running) { stop(); start(); } } };
     }
 
-    /* Command your text: the selected pair replays on a loop — before, morph, after, a
-       comfortable hold — and clicking a chip switches which pair is looping. */
+    /* Command your text: each pair plays once — before, morph, after, a comfortable hold —
+       then the highlight steps to the next chip and its pair plays, around all eight.
+       Clicking a chip jumps there immediately and earns a longer read before moving on. */
     var cmd = document.getElementById('cmd-demo');
     if (cmd) {
+      var cmdGrace = 0;
       var cloop = loop(cmd, function (wait, next) {
         cmd.classList.remove('play');
         void cmd.offsetWidth;
         cmd.classList.add('play');
-        wait(8600, next);
+        wait(8600 + cmdGrace, function () {
+          cmdGrace = 0;
+          if (cmd.advanceChip) cmd.advanceChip();
+          next();
+        });
       });
-      cmd.addEventListener('cmd-restart', function () { cloop.restart(); });
+      cmd.addEventListener('cmd-restart', function () { cmdGrace = 3600; cloop.restart(); });
     }
 
     /* Dictate anywhere: each raw take lands at the caret, then trades places with its clean self. */
@@ -1227,8 +1245,8 @@
       var draw = dictate.querySelector('.draw');
       var dcleanEl = dictate.querySelector('.dclean');
       var TAKES = [
-        { raw: 'um so can we like push the demo to thursday afternoon',
-          clean: 'Can we push the demo to Thursday afternoon?' },
+        { raw: 'can we push the demo to friday... I mean saturday morning',
+          clean: 'Can we push the demo to Saturday morning?' },
         { raw: 'okay grab milk um those little potatoes and uh coffee too',
           clean: 'Grab milk, the little potatoes, and coffee.' },
         { raw: 'so yeah the migration um finished last night nothing broke',
