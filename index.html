@@ -274,9 +274,7 @@
       0 0 3px rgba(94, 170, 199, 0.35),
       0 0 22px rgba(94, 170, 199, 0.26),
       0 18px 60px rgba(0, 0, 0, 0.5);
-    animation: pillfloat 7s ease-in-out infinite;
   }
-  @keyframes pillfloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
   .livepill .label {
     font-size: 17px; font-weight: 500;
@@ -389,15 +387,15 @@
     opacity: 0;
   }
   .dtag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--accent-raw); }
-  /* Plays once revealed: the words land one by one on the first pass, then the take
-     keeps trading places with its cleaned-up self. */
-  .dictate-demo.in .draw { animation: drawline 10s linear infinite; }
+  /* One mechanic, several takes: the raw words land at the caret, hold a beat, then trade
+     places with their cleaned-up self. The script at the bottom rotates the examples and
+     pauses the loop while the vignette is off-screen. */
   .dictate-demo.in .draw .dw { animation: dwland 0.45s ease-out forwards; animation-delay: calc(var(--i) * 0.26s + 0.6s); }
-  .dictate-demo.in .dclean { animation: dcleanin 10s ease-out infinite; }
-  .dictate-demo.in .dtag { animation: dcleanin 10s ease-out infinite; }
+  .draw, .dclean, .dtag { transition: opacity 0.55s ease-out, transform 0.55s ease-out; }
+  .dclean, .dtag { transform: translateY(5px); }
+  .dictate-demo.show-clean .draw { opacity: 0; }
+  .dictate-demo.show-clean .dclean, .dictate-demo.show-clean .dtag { opacity: 1; transform: none; }
   @keyframes dwland { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes drawline { 0%, 42% { opacity: 1; } 48%, 94% { opacity: 0; } 100% { opacity: 1; } }
-  @keyframes dcleanin { 0%, 47% { opacity: 0; transform: translateY(5px); } 54%, 93% { opacity: 1; transform: none; } 98%, 100% { opacity: 0; } }
 
   /* ---------- Command Mode: the dark band ---------- */
   .band {
@@ -509,11 +507,17 @@
   }
   .swap { display: inline-grid; vertical-align: baseline; }
   .swap > span { grid-area: 1 / 1; white-space: nowrap; }
-  .w-old { color: var(--ink-2); animation: wOld 8s ease-in-out -5s infinite; }
+  .w-old { color: var(--ink-2); transition: opacity 0.5s ease-out; }
   .w-old s { text-decoration-color: rgba(240, 118, 82, 0.7); }
-  .w-new { color: var(--accent); font-weight: 650; opacity: 0; animation: wNew 8s ease-in-out -5s infinite; }
-  @keyframes wOld { 0%, 34% { opacity: 1; } 44%, 92% { opacity: 0; } 100% { opacity: 1; } }
-  @keyframes wNew { 0%, 38% { opacity: 0; } 48%, 92% { opacity: 1; } 100% { opacity: 0; } }
+  .w-new { color: var(--accent); font-weight: 650; opacity: 0; transition: opacity 0.5s ease-out; }
+  /* Rotating vignettes: the script at the bottom swaps the examples and steps each demo
+     through its beats (play, hold, fade, next), pausing whenever the demo is off-screen. */
+  #learn-demo > p { transition: opacity 0.45s ease-out; }
+  #learn-demo.fixed .w-old { opacity: 0; }
+  #learn-demo.fixed .w-new { opacity: 1; }
+  #learn-demo.fixed .learnpill { opacity: 1; transform: none; }
+  #snip-demo.show .expansion { opacity: 1; transform: none; }
+  #learn-demo.off > p, #snip-demo.off .saychip, #snip-demo.off .expansion { opacity: 0; }
   .learnpill {
     align-self: flex-start;
     display: inline-flex; align-items: center; gap: 7px;
@@ -523,10 +527,10 @@
     border-radius: 999px;
     padding: 4px 12px;
     opacity: 0;
-    animation: pillIn 8s ease-out -5s infinite;
+    transform: translateY(4px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
   }
   .learnpill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
-  @keyframes pillIn { 0%, 52% { opacity: 0; transform: translateY(4px); } 60%, 92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
   .saychip {
     align-self: flex-start;
@@ -535,6 +539,7 @@
     border: 1px solid var(--accent-glow);
     border-radius: 999px;
     padding: 7px 16px;
+    transition: opacity 0.45s ease-out;
   }
   .saychip::before { content: "\201C"; color: var(--accent); }
   .saychip::after { content: "\201D"; color: var(--accent); }
@@ -544,10 +549,13 @@
     border-left: 2px solid var(--accent-raw);
     padding-left: 14px;
     opacity: 0;
-    animation: expandIn 8s ease-out -5s infinite;
+    transform: translateY(6px);
+    transition: opacity 0.55s ease-out, transform 0.55s ease-out;
   }
   .expansion .var { color: var(--accent); font-weight: 600; }
-  @keyframes expandIn { 0%, 30% { opacity: 0; transform: translateY(6px); } 42%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  /* The moment a live value like {date} resolves: a brief glimmer as it fills in. */
+  .expansion .var.lit { animation: varlit 0.9s ease-out; }
+  @keyframes varlit { from { text-shadow: 0 0 14px var(--accent-glow); } to { text-shadow: 0 0 0 rgba(94, 170, 199, 0); } }
   .vignette .note { font-size: 13.5px; color: var(--ink-3); }
 
   /* ---------- Modes ---------- */
@@ -577,8 +585,9 @@
     .w-new, .learnpill, .expansion { animation: none; opacity: 1; transform: none; }
     .chip, .chip:hover { transform: none; }
     /* Vignettes settle to the after-state. */
-    .dictate-demo.in .draw, .dictate-demo.in .draw .dw, .dictate-demo.in .dclean, .dictate-demo.in .dtag,
+    .dictate-demo.in .draw .dw,
     .cmd-demo.play .c-old, .cmd-demo.play .c-new, .cmd-demo.play .chip.spoken, .cmd-demo.play .ctag { animation: none; }
+    .draw, .dclean, .dtag { transition: none; }
     .draw { opacity: 0; }
     .dclean, .dtag { opacity: 1; transform: none; }
     .dline .dcaret { animation: none; }
@@ -820,7 +829,7 @@
           <div class="gesture"><span class="name">Tidied to your taste</span><kbd>&#8963;&#8997;D</kbd></div>
           <p>The dictation level sets how much cleanup you get: Raw, Light, Full, or Max. Step it with the shortcut, or right from the pill while you speak.</p>
         </div>
-        <div class="dictate-demo reveal d2" role="img" aria-label="Example: a rambling spoken take, um so can we like push the demo to thursday afternoon, lands as the clean sentence Can we push the demo to Thursday afternoon?">
+        <div class="dictate-demo reveal d2" role="img" aria-label="Examples of raw spoken takes tidying themselves, like um so can we like push the demo to thursday afternoon landing as the clean sentence Can we push the demo to Thursday afternoon?">
           <div class="dpill" aria-hidden="true">
             <svg class="pcircle" viewBox="0 0 48 48">
               <g class="ringbreathe">
@@ -891,7 +900,7 @@
         <div class="vignette reveal">
           <h3>Correct it, and it learns</h3>
           <p class="expl">Fix a misheard word once, and the correction joins your dictionary. The same word lands right next time.</p>
-          <div class="demo" aria-label="Example: the misheard word Timavati is corrected to Timbavati and Piclo learns it">
+          <div class="demo" id="learn-demo" aria-label="Examples of corrections Piclo learns for good: Timavati becomes Timbavati, Shivon becomes Siobhan, Pico becomes Piclo">
             <p>Meet you at <span class="swap"><span class="w-old"><s>Timavati</s></span><span class="w-new">Timbavati</span></span> next week.</p>
             <span class="learnpill">Learned 1 correction</span>
           </div>
@@ -936,7 +945,7 @@
         <div class="vignette reveal">
           <h3>Boilerplate, by voice</h3>
           <p class="expl">Save a snippet once, then say <b>&ldquo;snippet my sign-off&rdquo;</b> mid-dictation and the full text drops in.</p>
-          <div class="demo" aria-label="Example: saying snippet my sign-off expands into a saved signature with the date filled in">
+          <div class="demo" id="snip-demo" aria-label="Examples: saying snippet my sign-off expands into a saved signature with today's date filled in the moment it lands">
             <span class="saychip">snippet my sign-off</span>
             <p class="expansion">Warm regards,<br>John<br><span class="var">July 8, 2026</span></p>
           </div>
@@ -957,6 +966,7 @@
       </div>
       <div class="reveal d1">
         <div class="mchips" role="list" aria-label="The built-in writing modes">
+          <span class="mchip" role="listitem">Auto</span>
           <span class="mchip" role="listitem">General</span>
           <span class="mchip" role="listitem">Email</span>
           <span class="mchip" role="listitem">Message</span>
@@ -998,7 +1008,7 @@
             <li><b>Transcription is 100% on-device</b>, powered by Whisper running on your Mac.</li>
             <li><b>No account, no telemetry, nothing phones home.</b> The only network calls are the ones you set up.</li>
             <li><b>Cloud AI is optional and yours.</b> Bring your own Claude, ChatGPT, or Gemini key, stored in the macOS Keychain, sent to that one provider and nowhere else.</li>
-            <li><b>Or skip the cloud entirely.</b> Piclo works with any local model server, like Ollama or LM Studio, so cleanup runs on your machine too.</li>
+            <li><b>Or skip the cloud entirely.</b> Piclo works with any local model server. Msty is a free, no-terminal way in, and Ollama or LM Studio work too, so cleanup runs on your machine.</li>
           </ul>
         </div>
         <div>
@@ -1025,7 +1035,7 @@
           <button type="button" class="engine" data-eng="claude" aria-expanded="true" aria-controls="engine-panel"><b>Claude</b><span>your Anthropic key</span></button>
           <button type="button" class="engine" data-eng="chatgpt" aria-expanded="false" aria-controls="engine-panel"><b>ChatGPT</b><span>your OpenAI key</span></button>
           <button type="button" class="engine" data-eng="gemini" aria-expanded="false" aria-controls="engine-panel"><b>Gemini</b><span>your Google key</span></button>
-          <button type="button" class="engine" data-eng="local" aria-expanded="false" aria-controls="engine-panel"><b>Local</b><span>Ollama, LM Studio, any OpenAI-compatible server</span></button>
+          <button type="button" class="engine" data-eng="local" aria-expanded="false" aria-controls="engine-panel"><b>Local</b><span>Msty, Ollama, LM Studio, any OpenAI-compatible server</span></button>
         </div>
         <div class="engine-panel" id="engine-panel">
           <div class="epanel">
@@ -1063,10 +1073,7 @@
 <script>
   (function () {
     var els = document.querySelectorAll('.reveal');
-    function reveal(el) {
-      el.classList.add('in');
-      if (el.id === 'cmd-demo') { el.classList.add('play'); }
-    }
+    function reveal(el) { el.classList.add('in'); }
     if (!('IntersectionObserver' in window)) {
       els.forEach ? els.forEach(reveal) : null;
       return;
@@ -1132,9 +1139,8 @@
         chips.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
         demo.setAttribute('aria-label', 'Example: the selected text, ' + plain(c.before) +
           ' is spoken over with ' + btn.textContent + ' and becomes: ' + plain(c.after));
-        demo.classList.remove('play');
-        void demo.offsetWidth;
-        demo.classList.add('play');
+        /* The rotator below owns the looping; this just asks it to start this pair promptly. */
+        demo.dispatchEvent(new Event('cmd-restart'));
       });
     });
   })();
@@ -1161,8 +1167,8 @@
         href: 'https://aistudio.google.com/apikey', l: 'Get your Google key',
         n: 'Paste it into Piclo once. It lives in your macOS Keychain and is sent only to Google.' },
       local: {
-        d: 'Local runs a model on your own Mac through Ollama, and LM Studio works too, so cleanup never touches the cloud.',
-        href: 'https://ollama.com', l: 'Set up a local model',
+        d: 'Local runs a model on your own Mac, so cleanup never touches the cloud. Msty is the easy way in: free, no terminal, install a model in a few clicks. Ollama and LM Studio work too, along with any OpenAI-compatible server.',
+        href: 'https://msty.app', l: 'Set up a local model',
         n: 'No key to store. Point Piclo at your local server and nothing leaves your Mac.' }
     };
     var cards = document.querySelectorAll('.engine[data-eng]');
@@ -1178,6 +1184,143 @@
         card.setAttribute('aria-expanded', 'true');
       });
     });
+  })();
+
+  /* The rotating vignettes: dictation takes, learned corrections, and snippets each cycle
+     through a few examples on a gentle loop. One tiny runner per demo; each pauses whenever
+     its demo scrolls off-screen and sits out entirely under reduced motion (the CSS settles
+     those on a single finished example). */
+  (function () {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    function loop(el, cycle) {
+      var running = false, timers = [];
+      function wait(ms, fn) { timers.push(setTimeout(function () { if (running) fn(); }, ms)); }
+      function go() { cycle(wait, go); }
+      function start() { if (!running) { running = true; go(); } }
+      function stop() { running = false; timers.forEach(clearTimeout); timers = []; }
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) { e.isIntersecting ? start() : stop(); });
+        }, { threshold: 0.3 });
+        io.observe(el);
+      } else { start(); }
+      return { restart: function () { if (running) { stop(); start(); } } };
+    }
+
+    /* Command your text: the selected pair replays on a loop — before, morph, after, a
+       comfortable hold — and clicking a chip switches which pair is looping. */
+    var cmd = document.getElementById('cmd-demo');
+    if (cmd) {
+      var cloop = loop(cmd, function (wait, next) {
+        cmd.classList.remove('play');
+        void cmd.offsetWidth;
+        cmd.classList.add('play');
+        wait(8600, next);
+      });
+      cmd.addEventListener('cmd-restart', function () { cloop.restart(); });
+    }
+
+    /* Dictate anywhere: each raw take lands at the caret, then trades places with its clean self. */
+    var dictate = document.querySelector('.dictate-demo');
+    if (dictate) {
+      var draw = dictate.querySelector('.draw');
+      var dcleanEl = dictate.querySelector('.dclean');
+      var TAKES = [
+        { raw: 'um so can we like push the demo to thursday afternoon',
+          clean: 'Can we push the demo to Thursday afternoon?' },
+        { raw: 'okay grab milk um those little potatoes and uh coffee too',
+          clean: 'Grab milk, the little potatoes, and coffee.' },
+        { raw: 'so yeah the migration um finished last night nothing broke',
+          clean: 'Migration finished last night. Nothing broke.' },
+        { raw: 'thanks again for friday um it was really really nice',
+          clean: 'Thanks again for Friday, it was really nice.' }
+      ];
+      var ti = 0;
+      loop(dictate, function (wait, next) {
+        var t = TAKES[ti % TAKES.length]; ti++;
+        var words = t.raw.split(' ');
+        dictate.classList.remove('show-clean');
+        draw.innerHTML = words.map(function (w, k) {
+          return '<span class="dw" style="--i:' + k + '">' + w + '</span>';
+        }).join(' ') + '<span class="dcaret"></span>';
+        wait(600 + words.length * 260 + 1650, function () {
+          dcleanEl.textContent = t.clean;
+          dictate.classList.add('show-clean');
+          wait(4400, next);
+        });
+      });
+    }
+
+    /* Fix it once: three corrections, mirroring the lede — a place, a friend's name, and
+       the product itself. */
+    var learn = document.getElementById('learn-demo');
+    if (learn) {
+      var lline = learn.querySelector('p');
+      var FIXES = [
+        { pre: 'Meet you at ', old: 'Timavati', neu: 'Timbavati', post: ' next week.' },
+        { pre: 'Dinner with ', old: 'Shivon', neu: 'Siobhan', post: ' on Friday.' },
+        { pre: 'I’ll send it from ', old: 'Pico', neu: 'Piclo', post: ' tonight.' }
+      ];
+      var fi = 0;
+      loop(learn, function (wait, next) {
+        wait(2500, function () {
+          learn.classList.add('fixed');
+          wait(4000, function () {
+            learn.classList.remove('fixed');
+            learn.classList.add('off');
+            wait(550, function () {
+              fi++;
+              var f = FIXES[fi % FIXES.length];
+              lline.innerHTML = f.pre +
+                '<span class="swap"><span class="w-old"><s>' + f.old + '</s></span>' +
+                '<span class="w-new">' + f.neu + '</span></span>' + f.post;
+              learn.classList.remove('off');
+              next();
+            });
+          });
+        });
+      });
+    }
+
+    /* Snippets: three spoken triggers, with {date} resolving live in the sign-off. */
+    var snip = document.getElementById('snip-demo');
+    if (snip) {
+      var chip = snip.querySelector('.saychip');
+      var exp = snip.querySelector('.expansion');
+      var SNIPS = [
+        { say: 'snippet my sign-off',
+          html: 'Warm regards,<br>John<br><span class="var">{date}</span>', date: true },
+        { say: 'snippet my address',
+          html: '18 Alpenglow Way<br>Silverpine, CO 80442' },
+        { say: 'snippet standup',
+          html: 'Yesterday: shipped the beta<br>Today: bug triage<br>Blockers: none' }
+      ];
+      var si = 0;
+      loop(snip, function (wait, next) {
+        var s = SNIPS[si % SNIPS.length]; si++;
+        chip.textContent = s.say;
+        exp.innerHTML = s.html;
+        snip.classList.remove('off');
+        wait(1300, function () {
+          snip.classList.add('show');
+          if (s.date) {
+            wait(1000, function () {
+              var v = exp.querySelector('.var');
+              if (v) {
+                v.textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                v.classList.add('lit');
+              }
+            });
+          }
+          wait(4300, function () {
+            snip.classList.remove('show');
+            snip.classList.add('off');
+            wait(550, next);
+          });
+        });
+      });
+    }
   })();
 </script>
 
