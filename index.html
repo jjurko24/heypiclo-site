@@ -109,13 +109,13 @@
     /* Hero vertical rhythm: one modular scale (16px base, x2, x3, x4.5 at the top end).
        s1 = tagline->subhead & CTA->meta, s2 = lockup->tagline, s3 = subhead->CTA, s4 = CTA->pill. */
     --hs-1: clamp(12px, 1.6vw, 16px);
-    --hs-2: clamp(22px, 3vw, 32px);
+    --hs-2: clamp(22px, 2.4vw, 30px);
     --hs-3: clamp(32px, 4.4vw, 48px);
-    --hs-4: clamp(44px, 6.4vw, 72px);
+    --hs-4: clamp(44px, 4.8vw, 56px);
     position: relative;
     background: #0A0F16;
     color: var(--night-ink);
-    padding: 0 0 clamp(76px, 9vw, 118px);
+    padding: 0 0 clamp(76px, 12vw, 180px);
     overflow: hidden;
   }
   .hero .photo {
@@ -145,7 +145,7 @@
   .topbar a.quiet { color: var(--night-ink-2); font-size: 14px; }
   .topbar a.quiet:hover { color: var(--night-ink); }
 
-  .hero-inner { position: relative; z-index: 2; text-align: center; padding-top: clamp(52px, 7vw, 92px); }
+  .hero-inner { position: relative; z-index: 2; text-align: center; padding-top: clamp(52px, 10vw, 144px); }
 
   .breathe { animation: breathe 4.2s ease-in-out infinite; }
   @keyframes breathe { 0%, 100% { opacity: 0.9; } 50% { opacity: 1; } }
@@ -172,12 +172,12 @@
   /* The brand lockup: the Piclo Circle and the name, side by side, the loudest thing on the page. */
   .lockup {
     display: flex; align-items: center; justify-content: center;
-    gap: clamp(12px, 2vw, 20px);
+    gap: clamp(12px, 1.6vw, 16px);
     margin-bottom: var(--hs-2);
   }
-  .lockup .mark { width: clamp(46px, 6.6vw, 70px); height: clamp(46px, 6.6vw, 70px); flex: none; display: block; }
+  .lockup .mark { width: clamp(46px, 5.2vw, 54px); height: clamp(46px, 5.2vw, 54px); flex: none; display: block; }
   .lockup .brand {
-    font-size: clamp(36px, 6.6vw, 64px);
+    font-size: clamp(36px, 5.2vw, 50px);
     line-height: 1;
     color: var(--night-ink);
     letter-spacing: -0.02em;
@@ -186,7 +186,7 @@
   }
 
   .hero h1 {
-    font-size: clamp(25px, 4.2vw, 42px);
+    font-size: clamp(25px, 3.4vw, 36px);
     font-weight: 500;
     line-height: 1.2;
     max-width: 24ch;
@@ -658,6 +658,12 @@
   }
   .beta h2 { font-size: clamp(24px, 3.4vw, 30px); }
   .beta p { font-size: 16px; color: var(--ink-2); margin: 10px auto 0; max-width: 52ch; }
+  .beta p.early { text-wrap: balance; }
+  @media (min-width: 760px) {
+    /* Wide enough for the second sentence: break between sentences, never mid-clause. */
+    .beta p.early { max-width: 76ch; text-wrap: initial; }
+    .beta p.early span { display: block; }
+  }
   .beta .cta { margin-top: 28px; }
   .beta .meta { color: var(--ink-3); }
 
@@ -711,9 +717,8 @@
       </div>
 
       <h1 class="serif">Your Mac, finally listening the way you think.</h1>
-      <p class="promise">Talk instead of type, anywhere on your Mac. Piclo transcribes on-device, cleans up with your own AI keys or a local model, and <em>never writes your audio to disk.</em></p>
+      <p class="promise">Talk instead of type, anywhere on your Mac. Hey Piclo transcribes on-device, cleans up with your own AI keys or a local model, and <em>never writes your audio to disk.</em></p>
       <a class="cta" href="https://updates.heypiclo.com/download">Download for macOS</a>
-      <p class="meta">macOS 14+ &middot; free first-look beta &middot; auto-updates</p>
     </div>
 
     <!-- The living pill: the real overlay, recreated. Words land in the page behind it. -->
@@ -817,7 +822,7 @@
       <div class="col reveal">
         <svg class="sicon" viewBox="0 0 24 24" aria-hidden="true"><path class="st" d="M20.61 10.17 A8.8 8.8 0 1 1 13.83 3.39"/><path class="st" d="M8.6 12.3l2.4 2.4 4.4-4.8"/><circle class="gl" cx="18.4" cy="5.2" r="2"/></svg>
         <h2 class="serif">Fix it once. It stays fixed.</h2>
-        <p class="lede">Whisper will garble your lodge, your product, your friend's name. Piclo is built around the loop that fixes that for good.</p>
+        <p class="lede">Whisper may garble your city, your product, your friend's name. Piclo is built around the loop that fixes that for good.</p>
       </div>
 
       <div class="duo">
@@ -972,7 +977,7 @@
     <div class="wrap">
       <div class="beta reveal">
         <h2 class="serif">You're early. That's the point.</h2>
-        <p>Hey Piclo is a free first look. Get in early, help shape it: updates ship often and install themselves.</p>
+        <p class="early"><span>Hey Piclo is a free first look.</span> <span>Get in early, help shape it: updates ship often and install themselves.</span></p>
         <p>If something breaks, or you wish it did something it doesn't, <a href="mailto:john@heypiclo.com">tell John</a>. Every note gets read, and the beta is shaped by exactly these notes.</p>
         <a class="cta" href="https://updates.heypiclo.com/download">Download for macOS</a>
         <p class="meta">macOS 14+ &middot; free first-look beta &middot; auto-updates</p>
