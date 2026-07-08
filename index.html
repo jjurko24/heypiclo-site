@@ -438,19 +438,42 @@
     -webkit-box-decoration-break: clone;
   }
   .c-new { opacity: 0; }
-  .cmd-demo .chip.spoken { align-self: flex-start; opacity: 0; }
-  .cmd-demo.in .c-old { animation: coldK 12s ease-in-out infinite; }
-  .cmd-demo.in .c-new { animation: cnewK 12s ease-in-out infinite; }
-  .cmd-demo.in .chip.spoken { animation: cchipK 12s ease-out infinite; }
-  @keyframes coldK { 0%, 40% { opacity: 1; } 47%, 96% { opacity: 0; } 100% { opacity: 1; } }
-  @keyframes cnewK {
-    0%, 44% { opacity: 0; }
-    51% { opacity: 1; text-shadow: 0 0 16px rgba(120, 217, 254, 0.5); }
-    60% { text-shadow: 0 0 0 rgba(120, 217, 254, 0); }
-    94% { opacity: 1; }
-    98%, 100% { opacity: 0; }
+  .c-new .cwarn { color: #F08A66; font-weight: 600; }
+  .cmd-demo .cfoot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .cmd-demo .chip.spoken { opacity: 0; }
+  .cmd-demo .ctag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 600;
+    color: var(--accent-raw);
+    border: 1px solid rgba(94, 170, 199, 0.45);
+    border-radius: 999px;
+    padding: 3px 11px;
+    opacity: 0;
   }
-  @keyframes cchipK { 0%, 14% { opacity: 0; transform: translateY(5px); } 22%, 90% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; } }
+  .cmd-demo .ctag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--accent-raw); }
+  .cmd-demo .ctag[hidden] { display: none; }
+  /* One pass per selection: the phrase lands, the selection holds a beat, then trades places
+     with its result and stays. Replayed by the script each time a chip below is chosen. */
+  .cmd-demo.play .chip.spoken { animation: cchipK 0.5s ease-out 0.15s forwards; }
+  .cmd-demo.play .c-old { animation: coldK 0.45s ease-out 2.05s forwards; }
+  .cmd-demo.play .c-new { animation: cnewK 1.2s ease-out 2.2s forwards; }
+  .cmd-demo.play .ctag { animation: cchipK 0.5s ease-out 2.75s forwards; }
+  @keyframes coldK { to { opacity: 0; } }
+  @keyframes cnewK {
+    0% { opacity: 0; }
+    45% { opacity: 1; text-shadow: 0 0 16px rgba(120, 217, 254, 0.5); }
+    100% { opacity: 1; text-shadow: 0 0 0 rgba(120, 217, 254, 0); }
+  }
+  @keyframes cchipK { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+  /* The chips are real buttons now; the selected one wears the quiet hot state. */
+  button.chip {
+    font-family: inherit;
+    line-height: 1.6;
+    cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+  }
+  button.chip:focus-visible { outline: 2px solid var(--accent-raw); outline-offset: 2px; }
+  .chip[aria-pressed="true"] { border-color: rgba(94, 170, 199, 0.55); background: rgba(94, 170, 199, 0.10); }
 
   /* ---------- It learns you ---------- */
   .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 34px; }
@@ -542,12 +565,14 @@
     .chip, .chip:hover { transform: none; }
     /* Vignettes settle to the after-state. */
     .dictate-demo.in .draw, .dictate-demo.in .draw .dw, .dictate-demo.in .dclean, .dictate-demo.in .dtag,
-    .cmd-demo.in .c-old, .cmd-demo.in .c-new, .cmd-demo.in .chip.spoken { animation: none; }
+    .cmd-demo.play .c-old, .cmd-demo.play .c-new, .cmd-demo.play .chip.spoken, .cmd-demo.play .ctag { animation: none; }
     .draw { opacity: 0; }
     .dclean, .dtag { opacity: 1; transform: none; }
     .dline .dcaret { animation: none; }
     .c-old { opacity: 0; }
-    .c-new, .cmd-demo .chip.spoken { opacity: 1; transform: none; }
+    .c-new, .cmd-demo .chip.spoken, .cmd-demo .ctag { opacity: 1; transform: none; }
+    .engine-panel { transition: none; }
+    .engine, .engine:hover { transition: none; }
   }
 
   /* ---------- Windows (real screenshots) ---------- */
@@ -575,10 +600,32 @@
     border-radius: 14px;
     padding: 14px 16px;
     display: flex; flex-direction: column; gap: 3px;
+    font: inherit; text-align: left; color: inherit;
+    cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    transition: border-color 140ms ease-out, box-shadow 140ms ease-out;
   }
   .engine b { font-size: 15.5px; font-weight: 650; color: var(--ink); }
   .engine span { font-size: 13px; line-height: 1.45; color: var(--ink-3); }
   .engine.local { border-color: var(--accent-glow); background: var(--accent-soft); }
+  .engine:hover { border-color: var(--accent-glow); }
+  .engine:focus-visible { outline: 2px solid var(--accent-raw); outline-offset: 2px; }
+  .engine[aria-expanded="true"] { border-color: var(--accent-glow); box-shadow: 0 0 0 3px var(--accent-soft); }
+  /* One shared panel under the cards; opens by growing its grid row, no measuring needed. */
+  .engine-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease-out; }
+  .engine-panel > .clip { overflow: hidden; min-height: 0; }
+  .engine-panel.open { grid-template-rows: 1fr; }
+  .epanel {
+    margin-top: 12px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  .epanel .edesc { font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+  .epanel .ekey { display: flex; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; font-size: 13.5px; color: var(--ink-3); }
+  .epanel .ekey a { font-size: 14px; font-weight: 600; white-space: nowrap; }
 
   /* ---------- Privacy ---------- */
   .plist { list-style: none; margin-top: 26px; }
@@ -796,21 +843,25 @@
         <h2 class="serif">Command your text</h2>
         <p class="lede" style="margin: 0 auto;">Select some text, <kbd>Double-tap &#8984;</kbd>, and say what you want done with it. Plain words in, real edits out: Piclo edits, transforms, formats, or researches in place.</p>
       </div>
-      <div class="cmd-demo reveal d1" role="img" aria-label="Example: the selected sentence, Get it to me by Friday, no excuses, is spoken over with make this friendlier and becomes, Could you send it over by Friday? That would really help.">
+      <div class="cmd-demo reveal d1" id="cmd-demo" role="img" aria-label="Example: the selected sentence, Get it to me by Friday, no excuses, is spoken over with make this friendlier and becomes, Could you send it over by Friday? That would really help.">
         <div class="cdoc" aria-hidden="true">
           <span class="c-old"><mark>Get it to me by Friday, no excuses.</mark></span>
           <span class="c-new">Could you send it over by Friday? That would really help.</span>
         </div>
-        <span class="chip hot spoken" aria-hidden="true">Make this friendlier</span>
+        <div class="cfoot" aria-hidden="true">
+          <span class="chip hot spoken">Make this friendlier</span>
+          <span class="ctag" hidden></span>
+        </div>
       </div>
-      <div class="chips center reveal d1" style="margin-left: auto; margin-right: auto;">
-        <span class="chip hot">Tighten this up</span>
-        <span class="chip">Translate to Spanish</span>
-        <span class="chip">Make the warnings red</span>
-        <span class="chip">Summarize this in three bullets</span>
-        <span class="chip">Turn this into a polite reply</span>
-        <span class="chip">Research this and draft an answer</span>
-        <span class="chip">Think more deeply about this</span>
+      <div class="chips center reveal d1" style="margin-left: auto; margin-right: auto;" role="group" aria-label="Try a command in the example above">
+        <button type="button" class="chip" data-cmd="friendlier" aria-pressed="true">Make this friendlier</button>
+        <button type="button" class="chip" data-cmd="tighten" aria-pressed="false">Tighten this up</button>
+        <button type="button" class="chip" data-cmd="spanish" aria-pressed="false">Translate to Spanish</button>
+        <button type="button" class="chip" data-cmd="red" aria-pressed="false">Make the warnings red</button>
+        <button type="button" class="chip" data-cmd="bullets" aria-pressed="false">Summarize this in three bullets</button>
+        <button type="button" class="chip" data-cmd="polite" aria-pressed="false">Turn this into a polite reply</button>
+        <button type="button" class="chip" data-cmd="research" aria-pressed="false">Research this and draft an answer</button>
+        <button type="button" class="chip" data-cmd="deeper" aria-pressed="false">Think more deeply about this</button>
       </div>
       <p class="foot center reveal d2" style="margin-left: auto; margin-right: auto; text-align: center;">Piclo uses the right model for the job: quick edits stay light, deeper work can step up when you ask. All on <b>keys you bring</b>.</p>
     </div>
@@ -957,11 +1008,19 @@
           <h2 class="serif" style="font-size: clamp(23px, 3vw, 28px);">Bring your own AI</h2>
           <p class="lede" style="font-size: 16.5px;">No account, no middleman, no markup. Paste your own API key, stored in the macOS Keychain and sent only to the provider you chose. Cleanup runs on your key, your account, your rates. Or point Piclo at a local model and skip the cloud entirely.</p>
         </div>
-        <div class="engines reveal d1">
-          <div class="engine"><b>Claude</b><span>your Anthropic key</span></div>
-          <div class="engine"><b>ChatGPT</b><span>your OpenAI key</span></div>
-          <div class="engine"><b>Gemini</b><span>your Google key</span></div>
-          <div class="engine local"><b>Local</b><span>Ollama, LM Studio, any OpenAI-compatible server</span></div>
+        <div class="engines reveal d1" role="group" aria-label="Pick an engine to see how to set it up">
+          <button type="button" class="engine" data-eng="claude" aria-expanded="false" aria-controls="engine-panel"><b>Claude</b><span>your Anthropic key</span></button>
+          <button type="button" class="engine" data-eng="chatgpt" aria-expanded="false" aria-controls="engine-panel"><b>ChatGPT</b><span>your OpenAI key</span></button>
+          <button type="button" class="engine" data-eng="gemini" aria-expanded="false" aria-controls="engine-panel"><b>Gemini</b><span>your Google key</span></button>
+          <button type="button" class="engine local" data-eng="local" aria-expanded="false" aria-controls="engine-panel"><b>Local</b><span>Ollama, LM Studio, any OpenAI-compatible server</span></button>
+        </div>
+        <div class="engine-panel" id="engine-panel">
+          <div class="clip">
+            <div class="epanel">
+              <p class="edesc"></p>
+              <p class="ekey"><a target="_blank" rel="noopener"></a><span class="enote"></span></p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -993,16 +1052,122 @@
 <script>
   (function () {
     var els = document.querySelectorAll('.reveal');
+    function reveal(el) {
+      el.classList.add('in');
+      if (el.id === 'cmd-demo') { el.classList.add('play'); }
+    }
     if (!('IntersectionObserver' in window)) {
-      els.forEach ? els.forEach(function (el) { el.classList.add('in'); }) : null;
+      els.forEach ? els.forEach(reveal) : null;
       return;
     }
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        if (e.isIntersecting) { reveal(e.target); io.unobserve(e.target); }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -36px 0px' });
     els.forEach(function (el) { io.observe(el); });
+  })();
+
+  /* Command your text: each chip plays its own before-and-after in the vignette. */
+  (function () {
+    var demo = document.getElementById('cmd-demo');
+    if (!demo) return;
+    var oldEl = demo.querySelector('.c-old mark');
+    var newEl = demo.querySelector('.c-new');
+    var chipEl = demo.querySelector('.chip.spoken');
+    var tagEl = demo.querySelector('.ctag');
+    var CMDS = {
+      friendlier: {
+        before: 'Get it to me by Friday, no excuses.',
+        after: 'Could you send it over by Friday? That would really help.' },
+      tighten: {
+        before: 'I just wanted to reach out and see if you might have had a chance to look at the proposal I sent over last week.',
+        after: 'Have you had a chance to look at last week’s proposal?' },
+      spanish: {
+        before: 'Running ten minutes late. Order me a coffee and grab a table?',
+        after: 'Llego diez minutos tarde. ¿Me pides un café y buscas una mesa?' },
+      red: {
+        before: 'Backups run at midnight. Do not unplug the rack during the sync.',
+        after: 'Backups run at midnight. <span class="cwarn">Do not unplug the rack during the sync.</span>' },
+      bullets: {
+        before: 'The beta went out Tuesday, about twelve people installed it in the first week, and the only recurring complaint is that the onboarding video runs too long.',
+        after: '• Beta shipped Tuesday<br>• Twelve installs in week one<br>• Top complaint: onboarding video runs too long' },
+      polite: {
+        before: 'No. We’re not doing a discount.',
+        after: 'Thanks for asking! We aren’t able to offer a discount right now, but I’ll let you know the moment that changes.' },
+      research: {
+        before: 'Do EU customers need VAT added at checkout?',
+        after: 'Yes. Consumer sales into the EU are charged VAT at the buyer’s local rate, and the one-stop OSS scheme lets you file it all in a single return.',
+        tag: 'Searched the web' },
+      deeper: {
+        before: 'Should we build our own sync engine or use a vendor?',
+        after: 'Start with a vendor. Sync is a solved problem with brutal edge cases, and your effort is worth more in the editor. Build only when a vendor limit actually bites.',
+        tag: 'Stepped up to a deeper model' }
+    };
+    var chips = document.querySelectorAll('.chip[data-cmd]');
+    function plain(html) {
+      var d = document.createElement('div');
+      d.innerHTML = html.replace(/<br>/g, ' ');
+      return d.textContent;
+    }
+    chips.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var c = CMDS[btn.getAttribute('data-cmd')];
+        if (!c) return;
+        oldEl.innerHTML = c.before;
+        newEl.innerHTML = c.after;
+        chipEl.textContent = btn.textContent;
+        if (c.tag) { tagEl.textContent = c.tag; tagEl.hidden = false; } else { tagEl.hidden = true; }
+        chips.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+        demo.setAttribute('aria-label', 'Example: the selected text, ' + plain(c.before) +
+          ' is spoken over with ' + btn.textContent + ' and becomes: ' + plain(c.after));
+        demo.classList.remove('play');
+        void demo.offsetWidth;
+        demo.classList.add('play');
+      });
+    });
+  })();
+
+  /* Bring your own AI: each engine card opens the shared panel with its one-liner and link. */
+  (function () {
+    var panel = document.getElementById('engine-panel');
+    if (!panel) return;
+    var desc = panel.querySelector('.edesc');
+    var link = panel.querySelector('.ekey a');
+    var note = panel.querySelector('.enote');
+    var ENGINES = {
+      claude: {
+        d: 'Claude is Anthropic’s AI, careful with tone and very good at rewrites that still sound like you.',
+        href: 'https://console.anthropic.com/settings/keys', l: 'Get your Anthropic key',
+        n: 'Paste it into Piclo once. It lives in your macOS Keychain and is sent only to Anthropic.' },
+      chatgpt: {
+        d: 'ChatGPT is OpenAI’s AI, a strong all-rounder for everyday cleanup and edits.',
+        href: 'https://platform.openai.com/api-keys', l: 'Get your OpenAI key',
+        n: 'Paste it into Piclo once. It lives in your macOS Keychain and is sent only to OpenAI.' },
+      gemini: {
+        d: 'Gemini is Google’s AI, quick on its feet, with a free tier that makes it an easy way to start.',
+        href: 'https://aistudio.google.com/apikey', l: 'Get your Google key',
+        n: 'Paste it into Piclo once. It lives in your macOS Keychain and is sent only to Google.' },
+      local: {
+        d: 'Local runs a model on your own Mac through Ollama, and LM Studio works too, so cleanup never touches the cloud.',
+        href: 'https://ollama.com', l: 'Set up a local model',
+        n: 'No key to store. Point Piclo at your local server and nothing leaves your Mac.' }
+    };
+    var cards = document.querySelectorAll('.engine[data-eng]');
+    cards.forEach(function (card) {
+      card.addEventListener('click', function () {
+        var wasOpen = card.getAttribute('aria-expanded') === 'true';
+        cards.forEach(function (c) { c.setAttribute('aria-expanded', 'false'); });
+        if (wasOpen) { panel.classList.remove('open'); return; }
+        var e = ENGINES[card.getAttribute('data-eng')];
+        desc.textContent = e.d;
+        link.href = e.href;
+        link.textContent = e.l;
+        note.textContent = e.n;
+        card.setAttribute('aria-expanded', 'true');
+        panel.classList.add('open');
+      });
+    });
   })();
 </script>
 
