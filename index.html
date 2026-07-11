@@ -145,6 +145,17 @@
   .topbar a.quiet { color: var(--night-ink-2); font-size: 14px; }
   .topbar a.quiet:hover { color: var(--night-ink); }
 
+  /* Changelog + the two social marks, grouped right. The icons are deliberately the
+     quietest thing in the bar: they inherit the same muted ink as the Changelog link
+     and only come up to full ink on hover, so they read as a footnote, not a CTA. */
+  .topbar .right { display: flex; align-items: center; gap: 16px; }
+  .topbar a.social {
+    display: inline-flex; color: var(--night-ink-2);
+    opacity: 0.75; transition: opacity 0.2s ease, color 0.2s ease;
+  }
+  .topbar a.social:hover { color: var(--night-ink); opacity: 1; }
+  .topbar a.social svg { width: 15px; height: 15px; display: block; }
+
   .hero-inner { position: relative; z-index: 2; text-align: center; padding-top: clamp(52px, 10vw, 144px); }
 
   .breathe { animation: breathe 4.2s ease-in-out infinite; }
@@ -823,7 +834,15 @@
   <div class="wrap">
     <div class="topbar">
       <span class="beta-badge"><span class="dot"></span><b>Free first-look beta</b></span>
-      <a class="quiet" href="https://updates.heypiclo.com/changelog.html">Changelog</a>
+      <div class="right">
+        <a class="quiet" href="https://updates.heypiclo.com/changelog.html">Changelog</a>
+        <a class="social" href="https://x.com/heypiclo" target="_blank" rel="me noopener" aria-label="Hey Piclo on X (@heypiclo)" title="@heypiclo on X">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23Zm-1.16 17.52h1.83L7.02 4.13H5.06l12.02 15.64Z"/></svg>
+        </a>
+        <a class="social" href="https://instagram.com/heypiclo" target="_blank" rel="me noopener" aria-label="Hey Piclo on Instagram (@heypiclo)" title="@heypiclo on Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </a>
+      </div>
     </div>
 
     <div class="hero-inner">
